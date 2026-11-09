@@ -20,10 +20,10 @@ Generated from the deck's speaker notes. Deck: https://claude.ai/artifact/UeMWaM
 (0:45–1:05) Scam Shield works at the moment money moves. When a customer over 65 sends a large sum to a new payee, the bank calls our agent. It reads the transfer and any suspicious message or call on file, scores it, and the bank holds the money. Her son Joon gets the alert and taps Block. Mom's screen updates instantly. Next, incoming texts are screened automatically, and anyone can still forward one. In the demo the bank API is simulated.
 
 ## 6. agent
-(1:05–1:25) Under the hood is one agent loop. The bank sends the transfer attempt with its context. Deterministic tools pull out indicators and scan for eight Korean scam signals. Claude reasons over that evidence. Then a fixed policy, not the model, decides: risk 60 or above means hold and alert. The AI can hold money, but it can never release it. Only a human, the real child, can do that.
+(1:05–1:25) Under the hood is one agent loop. The bank sends the transfer attempt with its context. Deterministic tools pull out indicators and scan for eight Korean scam signals. Claude reasons over that evidence. Then a fixed policy, not the model, decides: risk 60 or above, or any large transfer to a new payee, means hold and alert. The AI can hold money, but it can never release it. Only a human, the real child, can do that.
 
 ## 7. demo
-(1:25–1:40) In the demo, a fake prosecutor texts Mom and she starts a transfer to a new payee. She does nothing else. Our simulated bank API calls the agent: authority impersonation, risk 98, hold. Joon blocks it. Every step is in the agent trace and a timestamped warning record. A normal family message scores safe, with no alert.
+(1:25–1:40) In the demo, Mom taps 이체하기 to send 30 million won to a "safe account" she has never paid before. Our simulated bank API calls the agent: new payee, large amount, safe-account wording. Claude says authority impersonation, risk 98, and the transfer is held. Joon blocks it. A 200,000 won allowance to her son goes straight through. Every step is in the trace and a timestamped warning record.
 
 ## 8. compete
 (1:40–1:55) Family alerts already exist, and we say so. SKT alerts guardians, but for calls only, and one-way. The big-5 banks are piloting family alerts, each for its own customers. Nobody lets the family confirm before the money moves, across every channel and every bank. That's our wedge.

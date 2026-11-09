@@ -130,8 +130,10 @@ def shield(d, x, y, s, fg=WHITE, bg=NAVY):
     )
 
 
-def footer(d, s="Synthetic demo messages · bank hold is simulated"):
+def footer(d, s="Synthetic demo messages · bank hold is simulated", brand=True):
     T(d, (60, H - 50), s, 24, MUTED)
+    if not brand:
+        return
     shield(d, W - 330, H - 72, 40)
     T(d, (W - 275, H - 70), "Scam Shield", 30, WHITE, True)
 
@@ -476,14 +478,13 @@ NODES = [
     ("Human", "child blocks\nor confirms"),
     ("Audit", "warning\nrecord"),
 ]
-TRACE = [
-    ("ingest_untrusted_message", "sms · 108 chars · treated as untrusted data"),
-    ("extract_indicators", "1 phone number · 0 links · 0 accounts"),
-    ("scan_scam_playbook", "안전계좌 이체 · 검찰 사칭 · 비밀 유지 · 오늘 중"),
-    ("llm_classify (Claude)", "impersonation_authority · risk 98 · 6349 ms"),
-    ("decide_action", "98 ≥ 60 → HOLD transfer + alert guardian"),
-    ("human_in_the_loop", "Guardian BLOCKED the transfer"),
-]
+TRACE = [("ingest_untrusted_message", "bank_transfer · treated as untrusted data"),
+         ("extract_indicators", "1 account number · 1 amount"),
+         ("scan_scam_playbook", "'안전계좌' 이체 요구 · 검찰·경찰·금감원 사칭"),
+         ("assess_transfer", "new_payee · large_amount · safe_account_payee"),
+         ("llm_classify (Claude)", "impersonation_authority · risk 98 · 4822 ms"),
+         ("decide_action", "98 ≥ 60 → HOLD transfer + alert guardian"),
+         ("human_in_the_loop", "Guardian BLOCKED the transfer")]
 
 
 def s_loop(t, D):
@@ -537,7 +538,7 @@ def s_loop(t, D):
                 ],
                 fill=WHITE if i < n - 1 else "#2c5582",
             )
-    d.rounded_rectangle([170, 420, W - 170, 930], 24, fill="#071526")
+    d.rounded_rectangle([170, 420, W - 170, 975], 24, fill="#071526")
     T(
         d,
         (210, 445),
@@ -547,7 +548,7 @@ def s_loop(t, D):
         mono=True,
         bg="#071526",
     )
-    for i, (tool, det) in enumerate(TRACE[:n]):
+    for i, (tool, det) in enumerate(TRACE[: min(7, int(t / ((D - 1.0) / 7)) + 1)]):
         yy = 505 + i * 68
         a = ease((t - i * step) / 0.3)
         T(
@@ -630,7 +631,7 @@ def s_inject(t, D):
         )
     steps = [
         ("Message = untrusted data", 0.0),
-        ("4 playbook signals fired", 0.6),
+        ("Playbook signals still fire", 0.6),
         ("2+ signals → risk floor 70", 1.2),
         ("Policy: HOLD + alert guardian", 1.8),
     ]
@@ -665,13 +666,11 @@ _stack = None
 def s_scroll(t, D):
     global _stack
     if _stack is None:
-        a = Image.open(os.path.join(PITCH, "04a-agent-trace.jpg")).convert("RGB")
+        a = Image.open(os.path.join(PITCH, "bank-07b-trace-full.jpg")).convert("RGB")
         b = Image.open(os.path.join(PITCH, "04b-warning-record.jpg")).convert("RGB")
-        _stack = Image.new("RGB", (a.width, a.height + b.height), "white")
-        _stack.paste(a, (0, 0))
-        _stack.paste(b, (0, a.height))
-    vh = 1015
-    off = int((_stack.height - vh) * ease(max(0, (t - 0.8)) / (D - 1.6)))
+        _stack = a
+    vh = int(_stack.width * 1015 / 469)
+    off = int(_stack.height * 0.3 + (_stack.height * 0.7 - vh) * ease(max(0, (t - 0.8)) / (D - 1.6)))
     fr, m, sh = framed(_stack.crop((0, off, _stack.width, off + vh)))
     im = base()
     d = ImageDraw.Draw(im)
@@ -701,7 +700,7 @@ def s_scroll(t, D):
         rise=r,
         spacing=16,
     )
-    footer(d)
+    footer(d, brand=False)
     return im
 
 
@@ -724,7 +723,7 @@ def s_stack(t, D):
         ("Next.js 16", "installable PWA"),
         ("Supabase", "Postgres RLS + Realtime"),
         ("Claude", "tool-using agent, structured output"),
-        ("11 / 11", "end-to-end tests passing"),
+        ("14 / 14", "tests passing"),
     ]
     for i, (h, s) in enumerate(chips):
         a, r = enter(t, 0.5 + i * 0.55)
@@ -897,7 +896,7 @@ def s_transfer(t, D):
 def s_triggers(t, D):
     im = base(); d = ImageDraw.Draw(im)
     a, r = enter(t, 0); T(d, (W // 2, 120), "Mom never has to spot the scam", 64, WHITE, True, "mm", a=a, rise=r)
-    cards = [("1 · Bank transfer\nintercept", "New payee + big amount:\nthe bank asks Scam Shield.\nHeld until family confirms.", "PRIMARY · simulated in demo", RED),
+    cards = [("1 · Bank transfer\nintercept", "New payee + big amount:\nthe bank asks Scam Shield.\nHeld until family confirms.", "PRIMARY · live in demo (simulated bank)", RED),
              ("2 · Automatic\nmessage screening", "Incoming SMS / KakaoTalk\nscreened on her phone\nor via the telco.", "ROADMAP", "#2a5d94"),
              ("3 · Forward\na message", "Share anything suspicious\nfor an instant check.", "FALLBACK · live today", "#2a5d94")]
     for i, (h, s, tag, col) in enumerate(cards):
@@ -911,25 +910,48 @@ def s_triggers(t, D):
     return im
 
 
+
+def seq_scene(shots, kicker, lines, color=RED, stamp=None, foot="Synthetic demo · the bank app is simulated in Scam Shield"):
+    """Real app screenshots switching at given times; lines = [(t, text, size, colour)]."""
+    def f(t, D):
+        im = base(); d = ImageDraw.Draw(im)
+        cur = [n for st, n in shots if t >= st][-1]
+        fr, m, sh = shot(cur)
+        put_phone(im, fr, m, sh, 1460, 60, z=1.0 + 0.04 * (t / D), a=ease(t / .3))
+        a, r = enter(t, .1); T(d, (110, 200), kicker, 34, color, True, a=a, rise=r)
+        y = 260
+        for st, txt, sz, col in lines:
+            a, r = enter(t, st); T(d, (110, y), txt, sz, col, sz > 50, a=a, rise=r, spacing=16)
+            y += (sz + 26) * (txt.count("\n") + 1) + 24
+        if stamp and t > stamp:
+            e = ease((t - stamp) / .35); sc = 1 + (1 - e) * .6
+            fnt = font(int(60 * sc), True); tw = fnt.getlength("TRANSFER HELD")
+            d.rounded_rectangle([110, 780, 110 + tw + 60, 780 + 60 * sc + 40], 18, outline=mix(RED, e), width=6)
+            d.text((140, 794), "TRANSFER HELD", font=fnt, fill=mix(RED, e))
+        footer(d, foot, brand=False); return im
+    return f
+
+
 SCENES = [
     ("hook", "Mom just got this text. A prosecutor says her account is linked to a crime. Move the money today. Tell no one.", 6.5, s_hook),
-    ("transfer", "She believes it, and opens her bank app. But before the money moves, the bank asks Scam Shield. Risk ninety-eight. Transfer held. Mom didn't have to spot a thing.", 7.0, s_transfer),
+    ("transfer", "She believes it, and opens her bank app. Before the money moves, the bank asks Scam Shield. Risk ninety-eight. Transfer held. Mom didn't have to spot a thing.", 7.0,
+     seq_scene([(0, "bank-01-mom-transfer.jpg"), (3.0, "bank-02-mom-checking.jpg"), (5.0, "bank-03-mom-held.jpg")],
+               "LIVE APP · MOM'S BANK", [(.3, "She believes it.\nShe sends ₩30,000,000.", 72, WHITE),
+                                        (3.0, "Her bank asks Scam Shield\nbefore the money moves.", 42, SOFT)], stamp=5.6)),
     ("stat", "Scams like this cost Koreans a record one point two six trillion won last year. Up forty-seven percent.", 4.0, s_stat),
     ("problem", "Most losses come from fake authorities, and victims in their sixties are up eighty-five percent.", 4.0, s_problem),
     ("triggers", "Mom never has to spot the scam. Risky transfers trigger it at the bank. Next, messages get screened automatically. Forwarding is just the fallback.", 7.0, s_triggers),
-    ("mom", "Mom sees why, in Korean, explained by our Claude agent.",
-     4.0, app_scene("01-mom-risk98.jpg", "1 · MOM SEES WHY", "Risk 98.\n기관사칭형.", "Claude classifies the scam and explains\nevery red flag in Korean.\nThe money stays put.")),
-    ("joon", "Her son Joon, in Singapore, is alerted live, in English.",
-     3.0, app_scene("02a-joon-alert-top.jpg", "2 · LIVE ALERT", "Joon is alerted\ninstantly.", "In Singapore, in English,\nvia Supabase Realtime.")),
+    ("joon", "Her son Joon, in Singapore, is alerted live: Mom is trying to send thirty million won to a new account.",
+     3.0, seq_scene([(0, "bank-04-joon-alert.jpg")], "LIVE ALERT · JOON'S PHONE", [(.3, "Joon is alerted\ninstantly.", 76, WHITE), (.9, "In Singapore, in English,\nvia Supabase Realtime.", 40, SOFT)])),
     ("block", "He taps block. Only her real child, on his own signed-in device, can release a hold. A cloned voice can't.",
-     4.0, app_scene("02-joon-alert-block.jpg", "3 · HUMAN DECIDES", "He taps\nBlock transfer.", "Only her real child, on his own\nsigned-in device, can release a hold.\nA cloned voice can't.", z0=1.04, z1=1.0)),
-    ("blocked", "Mom's screen updates instantly.",
-     2.5, app_scene("03-mom-blocked.jpg", "4 · MOM SEES IT", "가족이 차단했어요.", "\"Your family blocked it.\"\nUpdated live.", color=GREEN)),
-    ("loop", "Under the hood, deterministic tools extract indicators and scan a Korean scam playbook. Claude reasons. Then a fixed policy holds anything at sixty or above.", 8.0, s_loop),
+     4.0, seq_scene([(0, "bank-05-joon-block.jpg")], "HUMAN DECIDES", [(.3, "He taps\nBlock transfer.", 76, WHITE), (.9, "Only her real child, on his own\nsigned-in device, can release a hold.\nA cloned voice can't.", 40, SOFT)])),
+    ("blocked", "Mom's bank screen updates instantly.",
+     2.5, seq_scene([(0, "bank-06-mom-blocked.jpg")], "MOM SEES IT", [(.3, "자녀가 이체를\n막았어요.", 76, WHITE), (.9, "\"Your child blocked the transfer.\"\nUpdated live.", 40, SOFT)], color=GREEN)),
+    ("loop", "Under the hood, deterministic tools extract indicators, scan a Korean scam playbook and assess the transfer. Claude reasons. Then a fixed policy holds anything at sixty or above.", 8.0, s_loop),
     ("punch", "So the AI can hold money. It can never release it.", 3.5, s_punch),
     ("inject", "And a prompt-injected 'this is safe' can't talk it down. Two playbook signals floor the risk at seventy.", 6.0, s_inject),
     ("scroll", "Every step is saved as a timestamped warning record.", 4.0, s_scroll),
-    ("stack", "Built today: Next.js, Supabase Realtime and Claude. Eleven of eleven tests pass.", 5.0, s_stack),
+    ("stack", "Built today: Next.js, Supabase Realtime and Claude. Fourteen of fourteen tests pass.", 5.0, s_stack),
     ("compare", "SKT's family care covers calls, one way. We sit at the transfer, across banks, before money moves.", 5.0, s_compare),
     ("business", "Banks pay. The pending no-fault bill exempts banks that sufficiently warned the customer. Our record is that proof.", 6.0, s_business),
     ("close", "Scam Shield. Mom's money can't move until her real child confirms.", 4.5, s_close),

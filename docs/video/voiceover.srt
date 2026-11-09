@@ -1,0 +1,64 @@
+1
+00:00:00,250 --> 00:00:07,459
+Mom just got this text. A prosecutor says her account is linked to a crime. Move the money today. Tell no one.
+
+2
+00:00:07,809 --> 00:00:17,611
+She believes it, and opens her bank app. Before the money moves, the bank asks Scam Shield. Risk ninety-eight. Transfer held. Mom didn't have to spot a thing.
+
+3
+00:00:17,961 --> 00:00:25,315
+Scams like this cost Koreans a record one point two six trillion won last year. Up forty-seven percent.
+
+4
+00:00:25,666 --> 00:00:31,291
+Most losses come from fake authorities, and victims in their sixties are up eighty-five percent.
+
+5
+00:00:31,641 --> 00:00:41,564
+Mom never has to spot the scam. Risky transfers trigger it at the bank. Next, messages get screened automatically. Forwarding is just the fallback.
+
+6
+00:00:41,914 --> 00:00:49,076
+Her son Joon, in Singapore, is alerted live: Mom is trying to send thirty million won to a new account.
+
+7
+00:00:49,426 --> 00:00:56,899
+He taps block. Only her real child, on his own signed-in device, can release a hold. A cloned voice can't.
+
+8
+00:00:57,250 --> 00:01:00,140
+Mom's bank screen updates instantly.
+
+9
+00:01:00,490 --> 00:01:12,284
+Under the hood, deterministic tools extract indicators, scan a Korean scam playbook and assess the transfer. Claude reasons. Then a fixed policy holds anything at sixty or above.
+
+10
+00:01:12,634 --> 00:01:15,980
+So the AI can hold money. It can never release it.
+
+11
+00:01:16,329 --> 00:01:22,939
+And a prompt-injected 'this is safe' can't talk it down. Two playbook signals floor the risk at seventy.
+
+12
+00:01:23,289 --> 00:01:27,019
+Every step is saved as a timestamped warning record.
+
+13
+00:01:27,369 --> 00:01:34,723
+Built today: Next.js, Supabase Realtime and Claude. Fourteen of fourteen tests pass.
+
+14
+00:01:35,073 --> 00:01:41,947
+SKT's family care covers calls, one way. We sit at the transfer, across banks, before money moves.
+
+15
+00:01:42,297 --> 00:01:49,603
+Banks pay. The pending no-fault bill exempts banks that sufficiently warned the customer. Our record is that proof.
+
+16
+00:01:49,953 --> 00:01:54,739
+Scam Shield. Mom's money can't move until her real child confirms.
+
