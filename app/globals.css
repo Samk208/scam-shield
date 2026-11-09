@@ -5,14 +5,14 @@
   --bg: #f4f6fa;
   --surface: #ffffff;
   --ink: #0d1b2a;
-  --muted: #5b6b7f;
-  --line: #e3e8ef;
+  --muted: #526277;
+  --line: #dce3ec;
   --navy: #0f2a4a;
   --navy-2: #1c3f6e;
   --danger: #d92d20;
   --danger-bg: #fef3f2;
   --danger-ink: #912018;
-  --safe: #12805c;
+  --safe: #0f7654;
   --safe-bg: #ecfdf3;
   --warn: #b54708;
   --warn-bg: #fffaeb;
@@ -41,7 +41,17 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
+  word-break: keep-all;
+  overflow-wrap: break-word;
   -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, h3, h4 {
+  text-wrap: pretty;
+}
+
+.tabular-nums, .font-mono {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Interaction: Tailwind v4 preflight drops pointer cursors; restore + smooth state changes (150-200ms). */
@@ -52,13 +62,20 @@ button:disabled { cursor: not-allowed; }
 /* Focus visible for keyboard users */
 :focus-visible { outline: 3px solid #4b8cf5; outline-offset: 2px; border-radius: 10px; }
 
-@keyframes ss-pop { 0% { transform: scale(.96); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
-@keyframes ss-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(217,45,32,.45) } 50% { box-shadow: 0 0 0 10px rgba(217,45,32,0) } }
+@keyframes ss-pop { 0% { transform: scale(.97); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
+@keyframes ss-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(217,45,32,.4) } 50% { box-shadow: 0 0 0 8px rgba(217,45,32,0) } }
 @keyframes ss-scan { 0% { transform: translateX(-100%) } 100% { transform: translateX(250%) } }
-.ss-pop { animation: ss-pop .35s cubic-bezier(.2,.8,.2,1) both }
-.ss-pulse { animation: ss-pulse 1.6s ease-in-out infinite }
+@keyframes ss-shimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
+.ss-pop { animation: ss-pop .3s cubic-bezier(.2,.8,.2,1) both }
+.ss-pulse { animation: ss-pulse 1.8s ease-in-out infinite }
 .ss-scan { animation: ss-scan 1.2s linear infinite }
+.ss-skeleton {
+  background: linear-gradient(90deg, #e8edf4 25%, #f4f6fa 50%, #e8edf4 75%);
+  background-size: 200% 100%;
+  animation: ss-shimmer 1.6s ease-in-out infinite;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .ss-pop, .ss-pulse, .ss-scan { animation: none }
+  .ss-pop, .ss-pulse, .ss-scan, .ss-skeleton { animation: none }
+  button, a { transition: none }
 }

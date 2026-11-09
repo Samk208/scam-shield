@@ -3,8 +3,32 @@ import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { AuditEvent, Check, CheckResponse, ApiError, Channel, Decision, Member, MeResponse } from "@/lib/types";
 
+export const HAS_PUBLIC_SUPABASE = Boolean(
+  process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+);
+
+const SYNC_CHANNEL = "scam-shield-sync";
+
+function broadcastSync() {
+  if (typeof window === "undefined" || typeof BroadcastChannel === "undefined") return;
+  try {
+    const bc = new BroadcastChannel(SYNC_CHANNEL);
+    bc.postMessage("sync");
+    bc.close();
+  } catch {
+    /* ignore */
+  }
+}
+
+function inferClientDemoRole(): "parent" | "guardian" | undefined {
+  if (typeof window === "undefined" || HAS_PUBLIC_SUPABASE) return undefined;
+  if (window.location.pathname.startsWith("/guardian")) return "guardian";
+  if (window.location.pathname.startsWith("/parent")) return "parent";
+  return undefined;
+}
+
 export function useSupabase() {
-  return useMemo(() => createClient(), []);
+  return useMemo(() => (HAS_PUBLIC_SUPABASE ? createClient() : null), []);
 }
 
 export function useMe() {
@@ -12,12 +36,20 @@ export function useMe() {
     { me: null, family: [], loading: true, error: null },
   );
   useEffect(() => {
-    fetch("/api/me")
+    let alive = true;
+    const demoRole = inferClientDemoRole();
+    fetch("/api/me", {
+      headers: demoRole ? { "x-demo-role": demoRole } : undefined,
+    })
       .then(async (r) => {
         const j = (await r.json()) as MeResponse & ApiError;
+        if (!alive) return;
         setState(r.ok ? { me: j.me, family: j.family, loading: false, error: null } : { me: null, family: [], loading: false, error: j.error });
       })
-      .catch(() => setState({ me: null, family: [], loading: false, error: "Network error" }));
+      .catch(() => {
+        if (alive) setState({ me: null, family: [], loading: false, error: "Network error" });
+      });
+    return () => { alive = false; };
   }, []);
   return state;
 }
@@ -36,9 +68,43 @@ export function useFamilyChecks(familyId: string | undefined) {
   useEffect(() => {
     if (!familyId) return;
     let alive = true;
+
+    if (!supabase) {
+      const loadDemo = () =>
+        fetch("/api/checks")
+          .then((r) => r.json())
+          .then((j: { checks?: Check[] }) => {
+            if (alive) {
+              setChecks(j.checks ?? []);
+              setLoading(false);
+            }
+          })
+          .catch(() => {
+            if (alive) setLoading(false);
+          });
+
+      loadDemo();
+      const timer = setInterval(loadDemo, 2000);
+      let bc: BroadcastChannel | null = null;
+      if (typeof BroadcastChannel !== "undefined") {
+        bc = new BroadcastChannel(SYNC_CHANNEL);
+        bc.onmessage = () => loadDemo();
+      }
+      return () => {
+        alive = false;
+        clearInterval(timer);
+        bc?.close();
+      };
+    }
+
     const load = () =>
       supabase.from("checks").select("*").eq("family_id", familyId).order("created_at", { ascending: false }).limit(50)
-        .then(({ data }) => { if (alive) { setChecks((data as Check[]) ?? []); setLoading(false); } });
+        .then(({ data }) => {
+          if (alive) {
+            setChecks((data as Check[]) ?? []);
+            setLoading(false);
+          }
+        });
     load();
     const channel = supabase
       .channel(`checks:${familyId}`)
@@ -49,7 +115,7 @@ export function useFamilyChecks(familyId: string | undefined) {
     return () => { alive = false; supabase.removeChannel(channel); };
   }, [familyId, supabase]);
 
-  return { checks, loading };
+  return { checks, loading: familyId ? loading : false };
 }
 
 // One check plus its audit timeline, live.
@@ -62,6 +128,36 @@ export function useCheckAudit(checkId: string | undefined) {
   useEffect(() => {
     if (!checkId) return;
     let alive = true;
+
+    if (!supabase) {
+      const loadDemo = () =>
+        fetch(`/api/checks?checkId=${encodeURIComponent(checkId)}`)
+          .then((r) => r.json())
+          .then((j: { check?: Check | null; events?: AuditEvent[] }) => {
+            if (alive) {
+              setCheck(j.check ?? null);
+              setEvents(j.events ?? []);
+              setLoading(false);
+            }
+          })
+          .catch(() => {
+            if (alive) setLoading(false);
+          });
+
+      loadDemo();
+      const timer = setInterval(loadDemo, 2000);
+      let bc: BroadcastChannel | null = null;
+      if (typeof BroadcastChannel !== "undefined") {
+        bc = new BroadcastChannel(SYNC_CHANNEL);
+        bc.onmessage = () => loadDemo();
+      }
+      return () => {
+        alive = false;
+        clearInterval(timer);
+        bc?.close();
+      };
+    }
+
     const load = async () => {
       const [c, e] = await Promise.all([
         supabase.from("checks").select("*").eq("id", checkId).maybeSingle(),
@@ -83,25 +179,49 @@ export function useCheckAudit(checkId: string | undefined) {
     return () => { alive = false; supabase.removeChannel(channel); };
   }, [checkId, supabase]);
 
-  return { check, events, loading };
+  return { check, events, loading: checkId ? loading : false };
 }
 
 // API calls. Return { check } or { error }.
 export async function submitCheck(channel: Channel, content: string): Promise<{ check?: Check; error?: string }> {
-  const r = await fetch("/api/checks", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, content }) });
+  const r = await fetch("/api/checks", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-demo-role": "parent" },
+    body: JSON.stringify({ channel, content }),
+  });
   const j = (await r.json().catch(() => ({ error: "Bad response" }))) as CheckResponse & ApiError;
+  broadcastSync();
   return r.ok ? { check: j.check } : { error: j.error, check: j.check };
 }
 
 export async function decideCheck(id: string, decision: Decision): Promise<{ check?: Check; error?: string }> {
-  const r = await fetch(`/api/checks/${id}/decision`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ decision }) });
+  const r = await fetch(`/api/checks/${id}/decision`, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-demo-role": "guardian" },
+    body: JSON.stringify({ decision }),
+  });
   const j = (await r.json().catch(() => ({ error: "Bad response" }))) as CheckResponse & ApiError;
+  broadcastSync();
   return r.ok ? { check: j.check } : { error: j.error };
 }
 
 // Automatic trigger (simulated bank app): the bank screens the transfer through Scam Shield.
 export async function submitTransfer(t: import("@/lib/types").Transfer): Promise<{ check?: Check; error?: string }> {
-  const r = await fetch("/api/transfers", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(t) });
+  const r = await fetch("/api/transfers", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-demo-role": "parent" },
+    body: JSON.stringify(t),
+  });
   const j = (await r.json().catch(() => ({ error: "Bad response" }))) as CheckResponse & ApiError;
+  broadcastSync();
   return r.ok ? { check: j.check } : { error: j.error, check: j.check };
+}
+
+export async function triggerDemoReset(): Promise<void> {
+  await fetch("/api/me", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ action: "reset" }),
+  }).catch(() => {});
+  broadcastSync();
 }
