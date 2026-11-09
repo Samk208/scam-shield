@@ -20,6 +20,16 @@ export interface Member {
   lang: Lang;
 }
 
+export interface Indicators { urls: string[]; phones: string[]; accounts: string[]; amounts: string[] }
+
+// One step of the Scam Shield agent (perceive -> tools -> reason -> policy).
+export interface AgentStep {
+  step: "perceive" | "tools" | "reason" | "policy";
+  tool: string;
+  summary: string;
+  ms: number;
+}
+
 export interface Check {
   id: string;
   family_id: string;
@@ -36,6 +46,8 @@ export interface Check {
   decided_by: string | null;
   decided_at: string | null;
   error: string | null;
+  agent_trace: AgentStep[];
+  indicators: Indicators | Record<string, never>;
   created_at: string;
   updated_at: string;
 }

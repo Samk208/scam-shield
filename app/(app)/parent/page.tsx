@@ -1,51 +1,93 @@
 "use client";
 import { useState } from "react";
+import { MessageSquareText, Phone, Smartphone, ShieldCheck } from "lucide-react";
+import { AppHeader, DemoFooter } from "@/components/AppHeader";
 import { CheckCard } from "@/components/CheckCard";
 import { submitCheck, useFamilyChecks, useMe } from "@/lib/hooks";
-import { CHANNEL_LABEL, DEMO_LABEL } from "@/lib/labels";
 import type { Channel } from "@/lib/types";
 
-// Skeleton: Mom's screen. Big text, Korean. Frontend owner restyles.
+const CHANNELS: { id: Channel; label: string; Icon: typeof Phone }[] = [
+  { id: "sms", label: "문자", Icon: Smartphone },
+  { id: "kakao", label: "카카오톡", Icon: MessageSquareText },
+  { id: "call_transcript", label: "전화 내용", Icon: Phone },
+];
+
+// Synthetic demo inputs (fictional).
+const EXAMPLES: { label: string; channel: Channel; text: string }[] = [
+  { label: "검찰 사칭", channel: "sms", text: "[서울중앙지검] 김영자님 명의 계좌가 범죄에 연루되어 수사 중입니다. 자산 보호를 위해 오늘 중 안전계좌로 이체하시고 이 사실은 가족에게도 알리지 마십시오. 담당 수사관 010-0000-0000" },
+  { label: "자녀 사칭", channel: "kakao", text: "엄마 나 폰 액정 깨져서 임시폰으로 연락해. 급하게 결제할 게 있는데 엄마 카드 사진이랑 비밀번호 좀 보내줘" },
+  { label: "일상 안부", channel: "kakao", text: "엄마 저녁 먹었어? 이번 주말에 갈게" },
+];
+
 export default function ParentPage() {
   const { me } = useMe();
-  const { checks } = useFamilyChecks(me?.family_id);
+  const { checks, loading } = useFamilyChecks(me?.family_id);
   const [channel, setChannel] = useState<Channel>("sms");
   const [content, setContent] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [latestId, setLatestId] = useState<string | null>(null);
 
   async function onCheck() {
     setBusy(true);
     setError(null);
     const r = await submitCheck(channel, content);
     setBusy(false);
-    if (r.error) setError("확인에 실패했습니다. 다시 시도해 주세요.");
+    if (r.check) setLatestId(r.check.id);
+    if (r.error) setError("확인에 실패했어요. 잠시 후 다시 눌러 주세요.");
     else setContent("");
   }
 
+  const latest = checks.find((c) => c.id === latestId) ?? checks[0];
+  const history = checks.filter((c) => c.id !== latest?.id);
+
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-4 p-4 text-lg">
-      <h1 className="text-2xl font-bold">🛡️ 의심 메시지 확인</h1>
-      <p>{me?.display_name}님, 이상한 문자·카톡·전화 내용을 붙여넣으세요.</p>
-      <div className="flex gap-2">
-        {(Object.keys(CHANNEL_LABEL) as Channel[]).map((c) => (
-          <button key={c} onClick={() => setChannel(c)}
-            className={`flex-1 rounded-lg border-2 p-2 ${channel === c ? "border-black bg-black text-white" : ""}`}>
-            {CHANNEL_LABEL[c].ko}
+    <>
+      <AppHeader me={me} subtitle={me ? `${me.display_name}님` : undefined} />
+      <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 p-4 text-lg">
+        <section className="rounded-3xl bg-surface p-5 shadow-sm">
+          <h1 className="text-2xl font-bold">이상한 연락을 받으셨나요?</h1>
+          <p className="mt-1 text-muted">문자·카톡·전화 내용을 붙여넣으면 AI가 사기인지 확인하고, 자녀에게 바로 알려드려요.</p>
+
+          <div className="mt-4 grid grid-cols-3 gap-2" role="radiogroup" aria-label="받은 경로">
+            {CHANNELS.map(({ id, label, Icon }) => (
+              <button key={id} role="radio" aria-checked={channel === id} onClick={() => setChannel(id)}
+                className={`flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl border-2 text-base font-semibold transition
+                  ${channel === id ? "border-navy bg-navy text-white" : "border-line bg-surface text-ink"}`}>
+                <Icon className="size-5" /> {label}
+              </button>
+            ))}
+          </div>
+
+          <label htmlFor="msg" className="sr-only">받은 메시지</label>
+          <textarea id="msg" className="mt-3 min-h-36 w-full rounded-2xl border-2 border-line bg-bg p-4 text-lg outline-none focus:border-navy"
+            maxLength={4000} value={content} onChange={(e) => setContent(e.target.value)} placeholder="여기에 길게 눌러 붙여넣기" />
+
+          <div className="mt-2 flex flex-wrap gap-2" aria-label="데모 예시">
+            {EXAMPLES.map((ex) => (
+              <button key={ex.label} onClick={() => { setContent(ex.text); setChannel(ex.channel); }}
+                className="rounded-full border border-line px-3 py-1 text-sm text-muted hover:bg-bg">예시: {ex.label}</button>
+            ))}
+          </div>
+
+          <button onClick={onCheck} disabled={busy || !content.trim()}
+            className="relative mt-4 flex min-h-16 w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-danger text-2xl font-bold text-white shadow-md transition active:scale-[.98] disabled:opacity-50">
+            {busy && <span className="ss-scan absolute inset-y-0 left-0 w-1/3 bg-white/25" aria-hidden />}
+            <ShieldCheck className="size-7" /> {busy ? "AI가 확인 중이에요…" : "확인하기"}
           </button>
-        ))}
-      </div>
-      <textarea className="min-h-40 rounded-lg border-2 p-3" maxLength={4000} value={content}
-        onChange={(e) => setContent(e.target.value)} placeholder="여기에 붙여넣기" />
-      <button onClick={onCheck} disabled={busy || !content.trim()}
-        className="rounded-xl bg-red-600 p-4 text-2xl font-bold text-white disabled:opacity-50">
-        {busy ? "AI가 확인 중…" : "확인하기"}
-      </button>
-      {error && <p className="text-red-600">{error}</p>}
-      <section className="flex flex-col gap-3">
-        {checks.map((c) => <CheckCard key={c.id} check={c} lang="ko" />)}
-      </section>
-      <p className="text-xs text-zinc-500">{DEMO_LABEL}</p>
-    </main>
+          {error && <p className="mt-2 text-base text-danger" role="alert">{error}</p>}
+        </section>
+
+        {loading ? null : latest ? <CheckCard check={latest} lang="ko" /> : null}
+
+        {history.length > 0 && (
+          <section className="flex flex-col gap-2">
+            <h2 className="px-1 text-base font-semibold text-muted">지난 확인 기록</h2>
+            {history.map((c) => <CheckCard key={c.id} check={c} lang="ko" compact />)}
+          </section>
+        )}
+      </main>
+      <DemoFooter />
+    </>
   );
 }

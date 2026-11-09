@@ -6,6 +6,23 @@ Koreans lost a record ₩1.26조 to voice phishing in 2025 (National Police Agen
 
 > Demo: synthetic messages · simulated bank hold · no real accounts.
 
+## The Scam Shield agent
+Each forwarded message runs through one agent loop. Every step is recorded on the check (`agent_trace`) and shown in the app.
+
+```
+Perceive ──▶ Tools ──────────────────▶ Reason ─────────▶ Policy ─────────▶ Human ─────────▶ Audit
+untrusted    extract_indicators        Claude classifies  deterministic     guardian          timestamped
+message      (links, phones,           scam type, risk,   rule: risk ≥ 60   blocks or         warning record
+             accounts, amounts)        red flags, KO/EN   → HOLD + alert    releases          (bank evidence)
+             scan_scam_playbook        using tool                           (only a human
+             (8 Korean scam signals)   evidence                             can release)
+```
+
+**Why this design holds up under questioning:**
+- **The LLM only reasons.** Deterministic tools gather the evidence, and a deterministic policy picks the action. If two or more playbook signals fire, the risk can't be scored below 70, so a prompt-injected "this is safe" can't release a scam.
+- **The AI can put a transfer on hold, but never release it.** Releasing money needs a human: the real child, confirming from their own authenticated session. That's the "Proving You're Human" part.
+- **Every step is auditable.** The trace plus the audit events make up the warning record that the pending no-fault liability law will ask banks to show.
+
 ## How it works
 1. **Parent** pastes a suspicious message and taps 확인하기.
 2. **AI agent** (Claude, structured output) returns the scam type (기관사칭형, 가족사칭, 대출빙자형…), a risk score from 0 to 100, red flags, and a bilingual KO/EN explanation. The message is handled as untrusted input.
@@ -20,13 +37,13 @@ Koreans lost a record ₩1.26조 to voice phishing in 2025 (National Police Agen
 - Deployed on Vercel.
 
 ## Run locally
-1. Create a Supabase project and run `supabase/migrations/0001_init.sql` in its SQL editor.
+1. Create a Supabase project (hosted, self-hosted on Coolify, or `supabase start` locally). Run `supabase/migrations/0001_init.sql` and then `0002_agent_trace.sql`.
 2. Create `.env.local` with these keys. Never commit it.
    ```
    NEXT_PUBLIC_SUPABASE_URL=
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
    SUPABASE_SERVICE_ROLE_KEY=        # server only
-   ANTHROPIC_API_KEY=                # server only
+   ANTHROPIC_API_KEY=                # server only; if unset, the logged-in Claude Code CLI is used (set CLAUDE_CLI_PATH)
    ANTHROPIC_MODEL=claude-sonnet-5-5
    SEED_PARENT_EMAIL=mom@scamshield.test
    SEED_GUARDIAN_EMAIL=joon@scamshield.test

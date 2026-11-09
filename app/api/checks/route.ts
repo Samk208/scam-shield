@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { analyzeMessage } from "@/lib/server/analyze";
+import { runAgent } from "@/lib/server/agent";
 import { getMe, rateLimited } from "@/lib/server/auth";
 import { createServiceClient } from "@/lib/supabase/server";
-import { HOLD_THRESHOLD, type AuditEventType } from "@/lib/types";
+import type { AuditEventType } from "@/lib/types";
 
 export const maxDuration = 60;
 
@@ -34,11 +34,11 @@ export async function POST(req: Request) {
   await audit(created.id, "submitted", "user", auth.userId);
 
   try {
-    const v = await analyzeMessage(parsed.data.channel, parsed.data.content);
-    const held = v.risk_score >= HOLD_THRESHOLD;
+    const { verdict, action, indicators, trace } = await runAgent(parsed.data.channel, parsed.data.content);
+    const held = action === "hold_and_alert";
     const { data: check } = await db
       .from("checks")
-      .update({ ...v, status: held ? "held" : "safe", updated_at: new Date().toISOString() })
+      .update({ ...verdict, indicators, agent_trace: trace, status: held ? "held" : "safe", updated_at: new Date().toISOString() })
       .eq("id", created.id)
       .select()
       .single();
