@@ -102,17 +102,36 @@ const STATUS_BADGE_TEXT: Record<Check["status"], { ko: string; en: string }> = {
   failed: { ko: "실패", en: "Failed" },
 };
 
+const RED_FLAG_EN_MAP: Record<string, string> = {
+  "'안전계좌' 수취인 지정 — 공공·금융기관은 안전계좌를 운영하지 않습니다.":
+    "Recipient named 'Safe Account' — no real agency operates safe accounts.",
+  "이체 메모 '수사관 지시' — 검찰·금감원은 계좌 이체를 지시하지 않습니다.":
+    "Memo says 'Investigator Instruction' — prosecutors never demand bank transfers.",
+  "신규 계좌 280만 원 송금 (1회 모바일 한도 300만 원 회피 패턴)":
+    "₩2.8M to a first-time payee (sized right below the ₩3M mobile limit).",
+  "'안전계좌'로 3,000만 원을 보내려고 합니다. 진짜 기관은 안전계좌를 만들지 않습니다.":
+    "Recipient named 'Safe Account' — no real agency operates safe accounts.",
+  "이체 메모에 '수사관 지시'라고 적혀 있습니다. 검찰·경찰은 돈을 옮기라고 시키지 않습니다.":
+    "Memo says 'Investigator Instruction' — prosecutors never demand bank transfers.",
+  "처음 보내는 계좌인데 이체 금액이 매우 큽니다.":
+    "High-value transfer to an unverified first-time account.",
+  "검찰·금감원을 사칭하는 전형적인 기관사칭형 보이스피싱 수법입니다.":
+    "Matches classic prosecutor / FSS authority-impersonation voice phishing.",
+};
+
 export function CheckCard({
   check,
   lang,
   compact,
   detailView,
+  hideHotlines,
   children,
 }: {
   check: Check;
   lang: Lang;
   compact?: boolean;
   detailView?: boolean;
+  hideHotlines?: boolean;
   children?: React.ReactNode;
 }) {
   const s = STATUS_STYLE[check.status];
@@ -248,8 +267,8 @@ export function CheckCard({
 
         {explanation && (
           <p
-            className={`mt-4 rounded-2xl bg-surface/90 p-3.5 leading-relaxed text-ink ${
-              lang === "ko" ? "text-lg font-medium" : "text-base"
+            className={`mt-3.5 rounded-2xl bg-surface/90 p-3 leading-snug text-ink ${
+              lang === "ko" ? "text-base font-medium" : "text-sm"
             }`}
           >
             {explanation}
@@ -257,20 +276,18 @@ export function CheckCard({
         )}
 
         {check.red_flags.length > 0 && (
-          <div className="mt-3 rounded-2xl border border-danger/20 bg-surface/90 p-3.5">
-            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-danger-ink">
-              {lang === "ko"
-                ? "탐지된 보이스피싱 위험 신호"
-                : "Detected Red Flags (from Korean message/transfer)"}
+          <div className="mt-3 rounded-2xl border border-danger/20 bg-surface/90 p-3">
+            <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-danger-ink">
+              {lang === "ko" ? "탐지된 위험 신호" : "Detected Red Flags"}
             </p>
-            <ul className="flex flex-col gap-1.5">
-              {check.red_flags.map((f) => (
-                <li key={f} className="flex gap-2 text-base leading-relaxed text-ink">
+            <ul className="flex flex-col gap-1">
+              {check.red_flags.slice(0, 3).map((f) => (
+                <li key={f} className="flex gap-2 text-sm leading-snug text-ink">
                   <AlertTriangle
-                    className="mt-1 size-4 shrink-0 text-danger"
+                    className="mt-0.5 size-4 shrink-0 text-danger"
                     aria-hidden
                   />
-                  <span>{f}</span>
+                  <span>{lang === "en" ? RED_FLAG_EN_MAP[f] ?? f : f}</span>
                 </li>
               ))}
             </ul>
@@ -279,11 +296,11 @@ export function CheckCard({
 
         {/* Extracted forensic indicators */}
         {hasIndicators(check.indicators) && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
             {check.indicators.phones.map((p) => (
               <span
                 key={p}
-                className="rounded-lg border border-line bg-surface px-2.5 py-1 font-mono text-xs text-muted tabular-nums"
+                className="rounded-lg border border-line bg-surface px-2 py-0.5 font-mono text-xs text-muted tabular-nums"
               >
                 📞 {p}
               </span>
@@ -291,7 +308,7 @@ export function CheckCard({
             {check.indicators.accounts.map((a) => (
               <span
                 key={a}
-                className="rounded-lg border border-line bg-surface px-2.5 py-1 font-mono text-xs text-muted tabular-nums"
+                className="rounded-lg border border-line bg-surface px-2 py-0.5 font-mono text-xs text-muted tabular-nums"
               >
                 🏦 {a}
               </span>
@@ -299,7 +316,7 @@ export function CheckCard({
             {check.indicators.amounts.map((m) => (
               <span
                 key={m}
-                className="rounded-lg border border-line bg-surface px-2.5 py-1 font-mono text-xs text-muted tabular-nums"
+                className="rounded-lg border border-line bg-surface px-2 py-0.5 font-mono text-xs text-muted tabular-nums"
               >
                 💰 {m}
               </span>
@@ -307,40 +324,43 @@ export function CheckCard({
           </div>
         )}
 
-        {lang === "ko" &&
+        {!hideHotlines &&
           check.safe_action_ko &&
           ["held", "blocked"].includes(check.status) && (
-            <div className="mt-4 rounded-2xl border-2 border-navy/20 bg-surface p-4">
-              <p className="flex gap-2.5 text-lg font-bold leading-relaxed text-ink">
-                <ArrowRightCircle
-                  className="mt-1 size-5 shrink-0 text-navy"
-                  aria-hidden
-                />
-                <span>{check.safe_action_ko}</span>
-              </p>
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                <a
-                  href="tel:112"
-                  className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl bg-navy px-3 text-sm font-bold text-white hover:bg-navy-2"
-                >
-                  <Phone className="size-4" aria-hidden /> 경찰청 112 확인
-                </a>
-                <a
-                  href="tel:1332"
-                  className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl border border-line bg-bg px-3 text-sm font-bold text-ink hover:border-navy"
-                >
-                  <Phone className="size-4" aria-hidden /> 금감원 1332 상담
-                </a>
+            <div className="mt-3 rounded-2xl border border-navy/20 bg-surface p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="flex items-center gap-1.5 text-sm font-bold text-ink">
+                  <ArrowRightCircle className="size-4 shrink-0 text-navy" aria-hidden />
+                  <span>
+                    {lang === "ko"
+                      ? check.safe_action_ko
+                      : "Hang up immediately and verify via 112 (Police) or 1332 (FSS)."}
+                  </span>
+                </p>
+                <div className="flex items-center gap-1.5">
+                  <a
+                    href="tel:112"
+                    className="inline-flex min-h-9 items-center gap-1 rounded-xl bg-navy px-3 text-xs font-bold text-white hover:bg-navy-2"
+                  >
+                    <Phone className="size-3.5" aria-hidden /> 112
+                  </a>
+                  <a
+                    href="tel:1332"
+                    className="inline-flex min-h-9 items-center gap-1 rounded-xl border border-line bg-bg px-3 text-xs font-bold text-ink hover:border-navy"
+                  >
+                    <Phone className="size-3.5" aria-hidden /> 1332
+                  </a>
+                </div>
               </div>
             </div>
           )}
 
-        <details className="mt-4 rounded-2xl border border-line/80 bg-surface/80 px-3.5 py-2.5 text-sm text-muted">
+        <details className="mt-3 rounded-2xl border border-line/80 bg-surface/80 px-3 py-2 text-xs text-muted">
           <summary className="cursor-pointer select-none font-medium text-ink/80">
-            {lang === "ko" ? "원문 메시지·이체 기록 보기" : "View original message / raw transfer"} ·{" "}
+            {lang === "ko" ? "원문 메시지·이체 기록 보기" : "View raw payload"} ·{" "}
             {CHANNEL_LABEL[check.channel][lang]}
           </summary>
-          <p className="mt-2 whitespace-pre-wrap rounded-xl bg-bg p-3 font-mono text-sm text-ink">
+          <p className="mt-2 whitespace-pre-wrap rounded-xl bg-bg p-2.5 font-mono text-xs text-ink">
             {check.content}
           </p>
         </details>
@@ -348,15 +368,15 @@ export function CheckCard({
         {children}
 
         {!detailView && (
-          <div className="mt-4 border-t border-line/60 pt-3">
+          <div className="mt-3 border-t border-line/60 pt-2.5">
             <Link
               href={`/checks/${check.id}`}
-              className="inline-flex min-h-11 items-center gap-1 text-sm font-bold text-navy-2 underline-offset-4 hover:underline"
+              className="inline-flex min-h-9 items-center gap-1 text-xs font-bold text-navy-2 underline-offset-4 hover:underline"
             >
               {lang === "ko"
                 ? "AI 판단 과정 · 은행 제출용 경고 기록 보기"
-                : "How the agent decided · Bank warning record"}{" "}
-              <ChevronRight className="size-4" aria-hidden />
+                : "View AI Decision Trace & Bank Warning Record"}{" "}
+              <ChevronRight className="size-3.5" aria-hidden />
             </Link>
           </div>
         )}

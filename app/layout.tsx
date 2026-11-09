@@ -21,8 +21,13 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ko" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      lang="ko"
+      translate="no"
+      className={`${geistSans.variable} ${geistMono.variable} notranslate h-full antialiased`}
+    >
       <head>
+        <meta name="google" content="notranslate" />
         {/* Pretendard: the standard Korean UI typeface */}
         <link
           rel="stylesheet"

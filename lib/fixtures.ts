@@ -17,22 +17,21 @@ export const fixtureChecks: Check[] = [
     family_id: FAMILY_ID,
     submitted_by: "u-mom",
     channel: "bank_transfer",
-    content: "[은행 이체 시도] 30,000,000원 → 금융보안 안전계좌 (352-1234-5678-90) · 처음 보내는 계좌 · 메모: 수사관 지시 자산보호",
+    content: "[은행 이체 시도] 2,800,000원 → 금융보안 안전계좌 (352-1234-5678-90) · 처음 보내는 계좌 · 메모: 수사관 지시 자산보호",
     status: "held",
     risk_score: 98,
     scam_type: "impersonation_authority",
     red_flags: [
-      "'안전계좌'로 3,000만 원을 보내려고 합니다. 진짜 기관은 안전계좌를 만들지 않습니다.",
-      "이체 메모에 '수사관 지시'라고 적혀 있습니다. 검찰·경찰은 돈을 옮기라고 시키지 않습니다.",
-      "처음 보내는 계좌인데 이체 금액이 매우 큽니다.",
-      "검찰·금감원을 사칭하는 전형적인 기관사칭형 보이스피싱 수법입니다.",
+      "'안전계좌' 수취인 지정 — 공공·금융기관은 안전계좌를 운영하지 않습니다.",
+      "이체 메모 '수사관 지시' — 검찰·금감원은 계좌 이체를 지시하지 않습니다.",
+      "신규 계좌 280만 원 송금 (1회 모바일 한도 300만 원 회피 패턴)",
     ],
     explanation_ko:
-      "수사관이 시켜서 '안전계좌'로 큰돈을 보내는 것은 전형적인 기관사칭형 보이스피싱입니다. 이체하면 돈을 되찾기 어려우니 지금 바로 멈추고 자녀의 확인을 기다리세요.",
+      "검찰·금감원을 사칭해 300만 원 한도 직전 금액(280만 원)을 '안전계좌'로 유도하는 전형적인 수법입니다. 자녀 확인 전까지 출금이 보류되었습니다.",
     explanation_en:
-      "This transfer of ₩30,000,000 to a 'safe account' under an 'investigator's instruction' matches the classic prosecutor-impersonation scam pattern. The bank has paused the transfer until you confirm or block.",
+      "Classic prosecutor-impersonation transfer (₩2.8M, right below the ₩3M mobile limit) to a fake 'safe account'. Paused until family confirms.",
     safe_action_ko:
-      "이체를 지금 바로 멈추고, 통화 중인 사람과 연락을 끊은 뒤 자녀나 경찰청(112), 금융감독원(1332)에 직접 전화해 확인하세요.",
+      "통화를 즉시 끊고 자녀 또는 경찰청(112)·금감원(1332)에 확인하세요.",
     decided_by: null,
     decided_at: null,
     error: null,
@@ -40,7 +39,7 @@ export const fixtureChecks: Check[] = [
       {
         step: "perceive",
         tool: "ingest_untrusted_message",
-        summary: "bank_transfer · 83 chars · treated as untrusted data",
+        summary: "bank_transfer · 82 chars · treated as untrusted data",
         ms: 1,
       },
       {
@@ -75,7 +74,7 @@ export const fixtureChecks: Check[] = [
       },
     ],
     transfer: {
-      amount: 30_000_000,
+      amount: 2_800_000,
       payee_name: "금융보안 안전계좌",
       payee_account: "352-1234-5678-90",
       new_payee: true,
@@ -85,7 +84,7 @@ export const fixtureChecks: Check[] = [
       urls: [],
       phones: [],
       accounts: ["352-1234-5678"],
-      amounts: ["30,000,000원"],
+      amounts: ["2,800,000원"],
     },
     created_at: now,
     updated_at: now,

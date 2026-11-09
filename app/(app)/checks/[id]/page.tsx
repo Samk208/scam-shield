@@ -162,13 +162,13 @@ export default function CheckDetailPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+          <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12">
             {/* LEFT 6 COLUMNS: VERDICT CARD & FORENSIC EVIDENCE */}
-            <div className="flex flex-col gap-6 lg:col-span-6">
+            <div className="flex h-full flex-col justify-between gap-6 lg:col-span-6">
               <CheckCard check={check} lang={lang} detailView />
 
               {/* Raw JSON Certificate Preview */}
-              <section className="rounded-3xl border border-line bg-[#0b192c] p-5 text-white shadow-sm">
+              <section className="flex flex-1 flex-col justify-between rounded-3xl border border-line bg-[#0b192c] p-5 text-white shadow-sm">
                 <div className="mb-3 flex items-center justify-between border-b border-white/15 pb-2.5">
                   <span className="font-mono text-xs font-bold text-[#32d583]">
                     warning-record-{check.id}.json
@@ -177,7 +177,7 @@ export default function CheckDetailPage() {
                     NO-FAULT LIABILITY ACT EVIDENCE
                   </span>
                 </div>
-                <pre className="max-h-72 overflow-auto font-mono text-xs leading-relaxed text-[#93c5fd]">
+                <pre className="max-h-72 flex-1 overflow-auto font-mono text-xs leading-relaxed text-[#93c5fd]">
                   {JSON.stringify(
                     {
                       record_type: "scam_shield_warning_record",
@@ -202,7 +202,7 @@ export default function CheckDetailPage() {
             </div>
 
             {/* RIGHT 6 COLUMNS: AGENT TRACE + TIMESTAMPED WARNING RECORD */}
-            <div className="flex flex-col gap-6 lg:col-span-6">
+            <div className="flex h-full flex-col justify-between gap-6 lg:col-span-6">
               <section className="rounded-3xl border border-line bg-surface p-6 shadow-xs">
                 <div className="mb-1 flex items-center gap-2">
                   <Cpu className="size-5 text-navy" aria-hidden />
@@ -220,7 +220,7 @@ export default function CheckDetailPage() {
                 <AgentTrace check={check} lang={lang} />
               </section>
 
-              <section className="rounded-3xl border border-line bg-surface p-6 shadow-xs">
+              <section className="flex flex-1 flex-col justify-between rounded-3xl border border-line bg-surface p-6 shadow-xs">
                 <div className="mb-1 flex items-center gap-2">
                   <FileCheck2 className="size-5 text-navy" aria-hidden />
                   <h2 className="text-lg font-extrabold text-ink">

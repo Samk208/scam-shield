@@ -198,14 +198,14 @@ export default function GuardianPage() {
           </p>
         )}
 
-        {/* DESKTOP 12-COLUMN COMMAND CENTER */}
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+        {/* DESKTOP 12-COLUMN COMMAND CENTER (EVEN COLUMNS WITH ITEMS-STRETCH) */}
+        <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12">
           {/* LEFT 7 COLUMNS: ACTIVE HELD TRANSFERS + FULL CHECK QUEUE */}
-          <div className="flex flex-col gap-6 lg:col-span-7">
+          <div className="flex h-full flex-col justify-between gap-5 lg:col-span-7">
             {loading ? (
               <div className="ss-skeleton h-96 rounded-3xl" aria-label="Loading checks" />
             ) : held.length > 0 ? (
-              <div className="flex flex-col gap-5">
+              <div className="flex h-full flex-col justify-between gap-4">
                 <div className="flex items-center justify-between px-1">
                   <h2 className="text-lg font-extrabold text-ink">
                     {lang === "ko"
@@ -219,131 +219,130 @@ export default function GuardianPage() {
                 {held.map((c) => {
                   const isBusy = busyState?.id === c.id;
                   return (
-                    <CheckCard key={c.id} check={c} lang={lang}>
-                      <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                    <CheckCard key={c.id} check={c} lang={lang} hideHotlines>
+                      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
                         <button
                           type="button"
                           disabled={isBusy}
                           onClick={() => decide(c.id, "block")}
-                          className="flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-danger-ink px-4 text-base font-bold text-white shadow-sm transition hover:bg-danger active:scale-[.99] disabled:opacity-50"
+                          className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-danger-ink px-4 text-sm font-bold text-white shadow-sm transition hover:bg-danger active:scale-[.99] disabled:opacity-50"
                         >
                           {isBusy && busyState?.decision === "block" ? (
-                            <Loader2 className="size-5 animate-spin" aria-hidden />
+                            <Loader2 className="size-4 animate-spin" aria-hidden />
                           ) : (
-                            <ShieldX className="size-5 shrink-0" aria-hidden />
+                            <ShieldX className="size-4 shrink-0" aria-hidden />
                           )}
                           <span>
-                            {lang === "ko" ? "이체 즉시 차단하기 (Block)" : "Block transfer"}
+                            {lang === "ko" ? "이체 즉시 차단 (Block)" : "Block Transfer"}
                           </span>
                         </button>
                         <button
                           type="button"
                           disabled={isBusy}
                           onClick={() => decide(c.id, "release")}
-                          className="flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-line bg-surface px-4 text-base font-bold text-ink transition hover:border-navy active:scale-[.99] disabled:opacity-50"
+                          className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border-2 border-line bg-surface px-4 text-sm font-bold text-ink transition hover:border-navy active:scale-[.99] disabled:opacity-50"
                         >
                           {isBusy && busyState?.decision === "release" ? (
-                            <Loader2 className="size-5 animate-spin" aria-hidden />
+                            <Loader2 className="size-4 animate-spin" aria-hidden />
                           ) : (
-                            <ThumbsUp className="size-5 shrink-0" aria-hidden />
+                            <ThumbsUp className="size-4 shrink-0" aria-hidden />
                           )}
                           <span>
-                            {lang === "ko" ? "안전 확인 · 보류 해제" : "Confirm safe & release"}
+                            {lang === "ko" ? "안전 확인 · 보류 해제" : "Approve & Release"}
                           </span>
                         </button>
                         <a
                           href="tel:010-0000-0000"
-                          className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border-2 border-line bg-surface px-4 text-sm font-bold text-navy transition hover:border-navy hover:bg-bg sm:col-span-2"
+                          className="flex min-h-10 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-4 text-xs font-bold text-navy transition hover:border-navy hover:bg-bg sm:col-span-2"
                         >
-                          <Phone className="size-4 shrink-0" aria-hidden />
+                          <Phone className="size-3.5 shrink-0" aria-hidden />
                           <span>
                             {lang === "ko"
-                              ? `${parentName}님께 바로 전화하기`
-                              : `Call ${parentName} now`}
+                              ? `${parentName}님께 바로 전화 확인하기`
+                              : `Call ${parentName} to verify`}
                           </span>
                         </a>
                       </div>
-                      <p className="mt-2.5 text-center text-xs font-medium text-muted">
-                        {lang === "ko"
-                          ? "보류 해제는 인증된 보호자(자녀)만 가능합니다. AI는 절대 돈을 보내지 않습니다."
-                          : "Only you can release a hold. The AI can hold money, never release it."}
-                      </p>
                     </CheckCard>
                   );
                 })}
               </div>
             ) : (
               others[0] && (
-                <div className="flex flex-col gap-3">
+                <div className="flex h-full flex-col justify-between gap-3">
                   <div className="flex items-center justify-between px-1">
                     <h2 className="text-base font-extrabold text-ink">
                       {lang === "ko" ? "가장 최근 처리된 거래" : "Most Recently Processed Check"}
                     </h2>
                   </div>
-                  <CheckCard check={others[0]} lang={lang} />
+                  <CheckCard check={others[0]} lang={lang} hideHotlines />
                 </div>
               )
             )}
           </div>
 
           {/* RIGHT 5 COLUMNS: FAMILY MESH + RECENT ACTIVITY + POLICY RULES */}
-          <aside className="flex flex-col gap-6 lg:col-span-5 lg:sticky lg:top-20">
-            <FamilyCard family={family} held={held.length > 0} lang={lang} />
+          <aside className="flex h-full flex-col justify-between gap-5 lg:col-span-5">
+            <div className="flex flex-col gap-5">
+              <FamilyCard family={family} held={held.length > 0} lang={lang} />
 
-            {others.length > 0 && (
-              <section className="rounded-3xl border border-line bg-surface p-5 shadow-xs">
-                <div className="mb-3 flex items-center justify-between">
-                  <h2 className="text-sm font-extrabold uppercase tracking-wide text-ink">
-                    {lang === "ko"
-                      ? `최근 보호 기록 (${others.length}건)`
-                      : `Resolved & Safe Activity (${others.length})`}
-                  </h2>
-                  <span className="text-xs text-muted">
-                    {lang === "ko" ? "클릭 시 감사 로그 열람" : "Click for audit log"}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-2.5">
-                  {others.map((c) => (
-                    <CheckCard key={c.id} check={c} lang={lang} compact />
-                  ))}
-                </div>
-              </section>
-            )}
+              {others.length > 0 && (
+                <section className="rounded-3xl border border-line bg-surface p-5 shadow-xs">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h2 className="text-sm font-extrabold uppercase tracking-wide text-ink">
+                      {lang === "ko"
+                        ? `최근 보호 기록 (${others.length}건)`
+                        : `Resolved & Safe Activity (${others.length})`}
+                    </h2>
+                    <span className="text-xs text-muted">
+                      {lang === "ko" ? "클릭 시 감사 로그" : "Click for audit log"}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {others.map((c) => (
+                      <CheckCard key={c.id} check={c} lang={lang} compact />
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
 
             {/* Policy & Compliance Card */}
-            <section className="rounded-3xl border border-line bg-surface p-5 shadow-xs">
-              <div className="flex items-center gap-2 text-navy">
-                <Lock className="size-5 shrink-0" aria-hidden />
-                <h2 className="text-base font-extrabold text-ink">
-                  {lang === "ko"
-                    ? "활성화된 결정적 보안 정책 (Policy Gate)"
-                    : "Active Deterministic Policy Rules"}
-                </h2>
+            <section className="flex flex-col justify-between rounded-3xl border border-line bg-surface p-5 shadow-xs">
+              <div>
+                <div className="flex items-center gap-2 text-navy">
+                  <Lock className="size-5 shrink-0" aria-hidden />
+                  <h2 className="text-base font-extrabold text-ink">
+                    {lang === "ko"
+                      ? "활성화된 결정적 보안 정책 (Policy Gate)"
+                      : "Active Deterministic Policy Rules"}
+                  </h2>
+                </div>
+                <ul className="mt-3 flex flex-col gap-2 text-xs leading-relaxed text-muted">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-safe" aria-hidden />
+                    <span>
+                      <strong className="text-ink">
+                        {lang === "ko" ? "결정적 위험 하한선:" : "Deterministic Floor:"}
+                      </strong>{" "}
+                      {lang === "ko"
+                        ? "신규 계좌 + 90만원 이상(모바일 한도 내 280만/98만) 또는 사기 키워드 2개 이상 감지 시 최소 위험도 70점 강제 부여"
+                        : "2+ hard signals (new payee, ≥₩900K, scam keyword) enforce minimum risk ≥ 70 and auto-hold."}
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Cpu className="mt-0.5 size-4 shrink-0 text-navy" aria-hidden />
+                    <span>
+                      <strong className="text-ink">
+                        {lang === "ko" ? "비대칭 권한 분리:" : "Asymmetric Authority:"}
+                      </strong>{" "}
+                      {lang === "ko"
+                        ? "AI는 이체를 보류할 수만 있으며, 출금 해제는 오직 보호자만 실행 가능"
+                        : "AI can pause transfers, never approve or release funds on its own."}
+                    </span>
+                  </li>
+                </ul>
               </div>
-              <ul className="mt-3 flex flex-col gap-2.5 text-xs leading-relaxed text-muted">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-safe" aria-hidden />
-                  <span>
-                    <strong className="text-ink">
-                      {lang === "ko" ? "결정적 위험 하한선:" : "Deterministic Floor:"}
-                    </strong>{" "}
-                    {lang === "ko"
-                      ? "신규 계좌 + 고액(≥500만원) 또는 사기 키워드 등 2개 이상 신호 감지 시 최소 위험도 70점 강제 부여"
-                      : "2+ hard signals (new payee, >=₩5M, scam phrase) enforces minimum risk score >= 70."}
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Cpu className="mt-0.5 size-4 shrink-0 text-navy" aria-hidden />
-                  <span>
-                    <strong className="text-ink">
-                      {lang === "ko" ? "비대칭 권한 분리:" : "Asymmetric Authority:"}
-                    </strong>{" "}
-                    {lang === "ko"
-                      ? "AI 에이전트는 이체를 보류(HOLD)할 수만 있으며, 출금 해제는 오직 보호자만 실행 가능"
-                      : "AI agent can pause transfers, never approve or release funds on its own."}
-                  </span>
-                </li>
-              </ul>
 
               {checks[0] && (
                 <Link

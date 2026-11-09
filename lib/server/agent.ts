@@ -57,8 +57,8 @@ export function decidePolicy(v: Verdict, signals: { id: string }[], transferFlag
 export function assessTransfer(t: Transfer, recentSuspicious: boolean) {
   const flags: string[] = [];
   if (t.new_payee) flags.push("new_payee");
-  if (t.amount >= 5_000_000) flags.push("large_amount");
-  if (/안전|보호|검찰|금감원|수사|국가/.test(`${t.payee_name} ${t.memo}`)) flags.push("safe_account_payee");
+  if (t.amount >= 900_000) flags.push("large_amount");
+  if (/안전|보호|검찰|금감원|수사|국가|구제|액정|수리/.test(`${t.payee_name} ${t.memo}`)) flags.push("safe_account_payee");
   if (recentSuspicious) flags.push("recent_suspicious_contact");
   return flags;
 }

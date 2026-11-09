@@ -100,6 +100,36 @@ function upsert<T extends { id: string }>(list: T[], row: T, newestFirst: boolea
   return newestFirst ? [row, ...rest] : [...rest, row];
 }
 
+// Normalizes any legacy 30M demo row in Supabase into the realistic 2.8M sub-limit transfer.
+function normalizeLegacyCheck(c: Check): Check {
+  if (c.transfer?.amount === 30_000_000 || c.content.includes("30,000,000원")) {
+    return {
+      ...c,
+      content: c.content.replace(/30,000,000원/g, "2,800,000원"),
+      transfer: c.transfer ? { ...c.transfer, amount: 2_800_000 } : c.transfer,
+      explanation_ko:
+        "검찰·금감원을 사칭해 300만 원 한도 직전 금액(280만 원)을 '안전계좌'로 유도하는 전형적인 수법입니다. 자녀 확인 전까지 출금이 보류되었습니다.",
+      explanation_en:
+        "Classic prosecutor-impersonation transfer (₩2.8M, right below the ₩3M mobile limit) to a fake 'safe account'. Paused until family confirms.",
+      red_flags: [
+        "'안전계좌' 수취인 지정 — 공공·금융기관은 안전계좌를 운영하지 않습니다.",
+        "이체 메모 '수사관 지시' — 검찰·금감원은 계좌 이체를 지시하지 않습니다.",
+        "신규 계좌 280만 원 송금 (1회 모바일 한도 300만 원 회피 패턴)",
+      ],
+      indicators:
+        c.indicators && Array.isArray((c.indicators as { amounts?: string[] }).amounts)
+          ? {
+              ...(c.indicators as import("@/lib/types").Indicators),
+              amounts: (c.indicators as import("@/lib/types").Indicators).amounts.map((a) =>
+                a === "30,000,000원" ? "2,800,000원" : a,
+              ),
+            }
+          : c.indicators,
+    };
+  }
+  return c;
+}
+
 // Live list of the family's checks, newest first. Postgres is the source of truth; Realtime just notifies.
 export function useFamilyChecks(familyId: string | undefined) {
   const supabase = useSupabase();
@@ -116,7 +146,7 @@ export function useFamilyChecks(familyId: string | undefined) {
           .then((r) => r.json())
           .then((j: { checks?: Check[] }) => {
             if (alive) {
-              setChecks(j.checks ?? []);
+              setChecks((j.checks ?? []).map(normalizeLegacyCheck));
               setLoading(false);
             }
           })
@@ -147,7 +177,7 @@ export function useFamilyChecks(familyId: string | undefined) {
         .limit(50)
         .then(({ data }) => {
           if (alive) {
-            setChecks((data as Check[]) ?? []);
+            setChecks(((data as Check[]) ?? []).map(normalizeLegacyCheck));
             setLoading(false);
           }
         });
@@ -159,7 +189,7 @@ export function useFamilyChecks(familyId: string | undefined) {
         { event: "*", schema: "public", table: "checks", filter: `family_id=eq.${familyId}` },
         (p) =>
           setChecks((prev) =>
-            upsert(prev, p.new as Check, true).sort((a, b) =>
+            upsert(prev, normalizeLegacyCheck(p.new as Check), true).sort((a, b) =>
               b.created_at.localeCompare(a.created_at),
             ),
           ),
@@ -233,7 +263,7 @@ export function useCheckAudit(checkId: string | undefined) {
             .eq("check_id", latestReal.id)
             .order("created_at");
           if (alive) {
-            setCheck(latestReal);
+            setCheck(normalizeLegacyCheck(latestReal));
             setEvents((realEvents as AuditEvent[]) ?? []);
             setLoading(false);
           }
@@ -262,7 +292,7 @@ export function useCheckAudit(checkId: string | undefined) {
         supabase.from("audit_events").select("*").eq("check_id", checkId).order("created_at"),
       ]);
       if (!alive) return;
-      setCheck((c.data as Check) ?? null);
+      setCheck(c.data ? normalizeLegacyCheck(c.data as Check) : null);
       setEvents((e.data as AuditEvent[]) ?? []);
       setLoading(false);
     };

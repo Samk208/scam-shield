@@ -59,28 +59,28 @@ export function AppHeader({
   const navItems = [
     {
       href: "/",
-      label: activeLang === "ko" ? "홈 · 소개" : "Home",
+      label: activeLang === "ko" ? "홈" : "Home",
       Icon: Home,
       active: pathname === "/",
       role: undefined,
     },
     {
       href: "/parent",
-      label: activeLang === "ko" ? "부모님 화면 (엄마)" : "Parent App (Mom)",
+      label: activeLang === "ko" ? "부모님 앱" : "Mom's App",
       Icon: ShieldAlert,
       active: pathname.startsWith("/parent"),
       role: "parent" as const,
     },
     {
       href: "/guardian",
-      label: activeLang === "ko" ? "보호자 관제 (Joon)" : "Guardian Console (Joon)",
+      label: activeLang === "ko" ? "자녀 관제" : "Guardian",
       Icon: UserCheck,
       active: pathname.startsWith("/guardian"),
       role: "guardian" as const,
     },
     {
       href: "/checks/c-held",
-      label: activeLang === "ko" ? "경고 증빙 기록" : "Warning Record",
+      label: activeLang === "ko" ? "증빙 기록" : "Audit Log",
       Icon: FileCheck2,
       active: pathname.startsWith("/checks"),
       role: undefined,
@@ -92,21 +92,27 @@ export function AppHeader({
       className="print-hidden sticky top-0 z-30 border-b border-white/10 bg-navy text-white shadow-md"
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 items-center gap-6">
-          <Link href="/" className="flex items-center gap-3 group">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-5">
+          <Link href="/" className="flex shrink-0 items-center gap-2.5 group">
             <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-white/12 ring-1 ring-white/25 transition group-hover:bg-white/20">
               <ShieldCheck className="size-6 text-[#32d583]" aria-hidden />
             </span>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <p className="text-lg font-bold leading-tight tracking-tight">Scam Shield</p>
-                <span className="hidden rounded-full bg-[#32d583]/20 px-2 py-0.5 text-[11px] font-bold text-[#32d583] md:inline-block">
-                  LIVE PROTECTION
+                <p className="whitespace-nowrap text-lg font-bold leading-tight tracking-tight">
+                  Scam Shield
+                </p>
+                <span className="hidden whitespace-nowrap rounded-full bg-[#32d583]/20 px-2 py-0.5 text-[11px] font-bold text-[#32d583] xl:inline-block">
+                  LIVE GUARD
                 </span>
               </div>
-              <p className="truncate text-xs text-white/75">
-                {subtitle ?? me?.display_name ?? "보이스피싱 가족 공동 방어 시스템"}
+              <p className="max-w-64 truncate text-xs text-white/75">
+                {subtitle ??
+                  me?.display_name ??
+                  (activeLang === "ko"
+                    ? "보이스피싱 실시간 가족 승인 방어망"
+                    : "Real-Time Family Transfer Protection")}
               </p>
             </div>
           </Link>
@@ -120,7 +126,7 @@ export function AppHeader({
                 key={href}
                 type="button"
                 onClick={() => navigateWithDemoRole(href, role)}
-                className={`inline-flex min-h-10 items-center gap-2 rounded-xl px-3.5 py-1.5 text-sm font-semibold transition ${
+                className={`inline-flex min-h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-sm font-semibold transition ${
                   active
                     ? "bg-white text-navy shadow-xs"
                     : "text-white/80 hover:bg-white/12 hover:text-white"
@@ -133,34 +139,42 @@ export function AppHeader({
           </nav>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {onLangChange && (
             <button
               type="button"
               onClick={() => onLangChange(activeLang === "ko" ? "en" : "ko")}
               aria-label={activeLang === "ko" ? "Switch to English" : "한국어로 전환"}
-              className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 text-xs font-semibold text-white hover:bg-white/20"
+              className="inline-flex min-h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-[#32d583]/50 bg-[#32d583]/15 px-3.5 text-xs font-bold text-white hover:bg-[#32d583]/25"
             >
-              <Globe className="size-3.5" aria-hidden />
-              <span>{activeLang === "ko" ? "한국어 · EN" : "EN · 한국어"}</span>
+              <Globe className="size-3.5 text-[#32d583]" aria-hidden />
+              <span>{activeLang === "ko" ? "EN · 한국어" : "한국어 · EN"}</span>
             </button>
           )}
 
           {me && (
-            <span className="hidden rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 sm:inline-block">
-              {me.role === "parent" ? "부모님 계정" : "Guardian"}
+            <span className="hidden whitespace-nowrap rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 md:inline-block">
+              {me.role === "parent"
+                ? activeLang === "ko"
+                  ? "부모님"
+                  : "Mom"
+                : activeLang === "ko"
+                  ? "보호자"
+                  : "Guardian"}
             </span>
           )}
 
           <button
             type="button"
             onClick={signOut}
-            aria-label={activeLang === "ko" ? "로그아웃 / 계정 변경" : "Sign out / Switch account"}
-            title={activeLang === "ko" ? "로그아웃 / 계정 변경" : "Sign out / Switch account"}
-            className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-white/15 bg-white/8 px-3 text-xs font-semibold text-white/90 hover:bg-white/18"
+            aria-label={activeLang === "ko" ? "계정 전환" : "Switch user"}
+            title={activeLang === "ko" ? "계정 전환" : "Switch user"}
+            className="inline-flex min-h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-white/15 bg-white/8 px-3 text-xs font-semibold text-white/90 hover:bg-white/18"
           >
             <LogOut className="size-4" aria-hidden />
-            <span className="hidden sm:inline">{activeLang === "ko" ? "계정 전환" : "Switch user"}</span>
+            <span className="hidden sm:inline">
+              {activeLang === "ko" ? "계정 전환" : "Switch"}
+            </span>
           </button>
         </div>
       </div>
