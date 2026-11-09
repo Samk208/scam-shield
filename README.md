@@ -2,13 +2,34 @@
 
 **Family-confirmed protection against voice phishing.** Built at c0mpiled-17 Seoul (2026-11-09) for the YC RFS themes **AI for the Aging Population** and **Proving You're Human**.
 
-Koreans lost a record ₩1.26조 to voice phishing in 2025 (National Police Agency). Scammers win by isolating parents. With Scam Shield, Mom forwards any suspicious call, KakaoTalk message or text. An AI agent classifies the scam, puts the transfer on hold and alerts her real child. The child blocks or confirms it from their own verified device before any money moves. Every step is saved as a timestamped warning record that banks can use as evidence under the pending no-fault liability law.
+Koreans lost a record ₩1.26조 to voice phishing in 2025 (National Police Agency). Scammers win by isolating parents, so **Mom doesn't have to recognise the scam.** When she starts a transfer, her bank asks Scam Shield automatically. An AI agent screens the transfer, puts it on hold, and alerts her real child, who blocks or confirms it from their own verified device before any money moves. Every step is saved as a timestamped warning record that banks can use as evidence under the pending no-fault liability law. Forwarding a suspicious SMS, KakaoTalk message or call transcript is the fallback channel.
 
-> Demo: synthetic messages · simulated bank hold · no real accounts.
+> Demo: synthetic messages · simulated bank API · no real accounts.
 
-**Live:** https://scam-shield-livid-omega.vercel.app (installable PWA)
-**Demo logins:** `mom@scamshield.test` (parent) and `joon@scamshield.test` (guardian). Ask the team for the demo password.
-**Pitch deck:** `docs/pitch/Scam_Shield_Pitch_Deck.pdf` · **Demo video:** `docs/video/scam-shield-demo.mp4`
+## For judges: everything in one place
+| | |
+|---|---|
+| **Demo video (1:55)** | https://youtu.be/JjS4pAC-N2I |
+| **Live app (no setup)** | https://scam-shield-livid-omega.vercel.app (installable PWA, mobile-first) |
+| **Pitch deck** | [PDF](docs/pitch/Scam_Shield_Pitch_Deck.pdf) · [PPTX](docs/pitch/Scam_Shield_Pitch_Deck.pptx) · [speaker notes & Q&A](docs/pitch/SPEAKER_NOTES.md) |
+| **Demo logins** (demo-only accounts, synthetic data) | Parent: `mom@scamshield.test` · Guardian: `joon@scamshield.test` · Password for both: `YBnlWRMGMdAU` |
+| **Built during the event** | First commit `4b1bc58` at 2026-11-09 11:23 KST, after the 10:00 build start. See `git log`. |
+
+### Try it in 60 seconds
+1. Open the live app in a **normal window** and sign in as **엄마 (Parent)**. Open it again in an **incognito window** and sign in as **Joon (Guardian)**.
+2. As Mom, in "내 은행 앱" (her bank app), pick **검찰이 시킨 '안전계좌' 이체** (₩30,000,000 to a new payee) and tap **이체하기**. She makes no judgement herself.
+3. After about 6–10s, Mom's transfer is **on hold** (risk ~98, 기관사칭형 authority impersonation). Joon's screen turns red **live**, and the AI agent pipeline shows Perceive → Tools → Reason → Policy → **Human**.
+4. Joon taps **Block transfer**, and Mom's screen updates instantly. Open "How the agent decided" to see the full agent trace and the exportable warning record.
+5. As a contrast, **아들에게 용돈 보내기** (₩200,000 to a known payee) goes through as safe, so it doesn't cry wolf.
+
+### What's real vs simulated
+- **Real:**
+  - Claude scam classification
+  - The deterministic agent tools and policy
+  - Supabase Auth with row-level security and Realtime
+  - The audit trail
+  - 14/14 end-to-end tests ([scripts/smoke.mjs](scripts/smoke.mjs)), run against the live deployment
+- **Simulated:** the bank app and the bank hold. In production, the bank calls `POST /api/transfers` server-to-server.
 
 ## The Scam Shield agent
 Each forwarded message runs through one agent loop. Every step is recorded on the check (`agent_trace`) and shown in the app.
@@ -67,4 +88,6 @@ message      (links, phones,           scam type, risk,   rule: risk ≥ 60   bl
 
 ## Built with
 - Claude Code.
-- gstack skills: `/office-hours`, used to pick the idea from seven candidates.
+- gstack skills: `/office-hours` (to pick the idea from seven researched candidates), gbrain installed as the team knowledge MCP
+- `ui-ux-pro-max` design pass: accessible & ethical style for elderly users (44px targets, 16px+ text, SVG icons, focus states)
+- Deep-research subagents (7 ideas validated with sourced market data; see the pitch deck)
