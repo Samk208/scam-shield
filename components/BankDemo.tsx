@@ -11,31 +11,31 @@ const PRESETS: {
   isDangerPreset: boolean;
   t: Transfer;
 }[] = [
-  {
-    label: "검찰이 시킨 '안전계좌' 이체",
-    tag: "사기 시나리오",
-    isDangerPreset: true,
-    t: {
-      amount: 30_000_000,
-      payee_name: "금융보안 안전계좌",
-      payee_account: "352-1234-5678-90",
-      new_payee: true,
-      memo: "수사관 지시 자산보호",
+    {
+      label: "검찰이 시킨 '안전계좌' 이체",
+      tag: "사기 시나리오",
+      isDangerPreset: true,
+      t: {
+        amount: 30_000_000,
+        payee_name: "금융보안 안전계좌",
+        payee_account: "352-1234-5678-90",
+        new_payee: true,
+        memo: "수사관 지시 자산보호",
+      },
     },
-  },
-  {
-    label: "아들에게 용돈 보내기",
-    tag: "정상 이체",
-    isDangerPreset: false,
-    t: {
-      amount: 200_000,
-      payee_name: "김준 (아들)",
-      payee_account: "110-555-123456",
-      new_payee: false,
-      memo: "용돈",
+    {
+      label: "아들에게 용돈 보내기",
+      tag: "정상 이체",
+      isDangerPreset: false,
+      t: {
+        amount: 200_000,
+        payee_name: "김준 (아들)",
+        payee_account: "110-555-123456",
+        new_payee: false,
+        memo: "용돈",
+      },
     },
-  },
-];
+  ];
 
 const PROGRESS_STEPS = [
   "1/4 · 은행이 이체 정보를 Scam Shield로 전달 중…",
@@ -110,21 +110,19 @@ export function BankDemo({
                 onClick={() => setI(idx)}
                 disabled={busy}
                 aria-pressed={active}
-                className={`flex min-h-12 items-center justify-between gap-2 rounded-2xl border-2 px-3.5 py-2 text-left text-sm font-semibold transition ${
-                  active
+                className={`flex min-h-12 items-center justify-between gap-2 rounded-2xl border-2 px-3.5 py-2 text-left text-sm font-semibold transition ${active
                     ? "border-navy bg-navy text-white shadow-xs"
                     : "border-line bg-bg/60 text-ink hover:border-navy/50"
-                }`}
+                  }`}
               >
                 <span className="truncate">{p.label}</span>
                 <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${
-                    active
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${active
                       ? "bg-white/20 text-white"
                       : p.isDangerPreset
                         ? "bg-danger-bg text-danger-ink"
                         : "bg-safe-bg text-safe"
-                  }`}
+                    }`}
                 >
                   {p.tag}
                 </span>
@@ -136,20 +134,18 @@ export function BankDemo({
             onClick={() => setI(2)}
             disabled={busy}
             aria-pressed={isCustom}
-            className={`flex min-h-12 items-center justify-between gap-2 rounded-2xl border-2 px-3.5 py-2 text-left text-sm font-semibold transition ${
-              isCustom
+            className={`flex min-h-12 items-center justify-between gap-2 rounded-2xl border-2 px-3.5 py-2 text-left text-sm font-semibold transition ${isCustom
                 ? "border-navy bg-navy text-white shadow-xs"
                 : "border-line bg-bg/60 text-ink hover:border-navy/50"
-            }`}
+              }`}
           >
             <span className="inline-flex items-center gap-1.5 truncate">
               <PenLine className="size-4 shrink-0" aria-hidden />
               직접 입력 실험
             </span>
             <span
-              className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${
-                isCustom ? "bg-white/20 text-white" : "bg-bg text-muted"
-              }`}
+              className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${isCustom ? "bg-white/20 text-white" : "bg-bg text-muted"
+                }`}
             >
               커스텀
             </span>

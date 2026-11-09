@@ -119,6 +119,93 @@ const FAQS = [
     aKo: "2025년 국내 보이스피싱 피해액이 1조 2,600억 원을 돌파하면서, 금융당국은 은행이 보이스피싱 피해액을 최대 5,000만 원까지 무과실 배상하도록 의무화하는 법안을 추진 중입니다. Scam Shield의 'Warning Record'는 은행이 고객에게 사전 경고했고 가족이 확인했다는 법적 타임스탬프 증빙을 제공합니다.",
     aEn: "With Korean voice-phishing losses exceeding ₩1.26 trillion in 2025, Korea's pending No-Fault Liability Act makes banks liable for up to ₩50M per victim unless they can prove rigorous pre-transfer warnings and verification. Scam Shield generates that exact timestamped evidence.",
   },
+  {
+    qKo: "시중 1금융권 은행이 당장 API를 열어주지 않아도 작동하나요? 누가 비용을 지불하나요?",
+    qEn: "How does Scam Shield work without waiting 18 months for a Tier-1 bank API — and who pays?",
+    aKo: "네, 즉시 작동합니다. 한국 55세 이상 액티브 시니어의 85% 이상이 삼성 갤럭시(안드로이드)를 사용합니다. Scam Shield는 (1) 안드로이드 알림·화면 보호 오버레이 + 마이데이터(오픈뱅킹)를 통해 은행 연동 없이도 사기 징후 후 은행 앱 고액 이체 시 화면을 즉시 잠그고 자녀 승인을 요청하는 'B2C 가족 안심 구독(월 9,900원)'으로 즉시 수익을 창출하며, (2) 보이스피싱 특약 손해율을 낮춰야 하는 손해보험사·알뜰폰(B2B2C 번들), 그리고 (3) 55세 이상 예금 비중이 65%가 넘지만 자체 AI FDS 팀이 없는 제2금융권(새마을금고·신협·단위농협·저축은행)에 무과실 배상책임 법안 대응 SaaS(월 500만~1,500만 원)로 공급합니다.",
+    aEn: "Yes. Over 85% of Koreans aged 55+ use Samsung Galaxy (Android). Using Android Notification + Screen Overlay guard + Korea Open Banking (MyData), Scam Shield locks the banking screen on Mom's phone and alerts her child with zero bank permission required. We monetize in 3 stages: (1) B2C Family Plan (₩9,900/mo paid by 30–48 adult children or 55+ pre-retirees), (2) B2B2C wholesale bundles with P&C insurers (who sell voice-phishing riders) & MVNOs, and (3) B2B Compliance SaaS for Tier-2 mutuals & savings banks (Saemaul Geumgo, Credit Unions) that lack in-house AI FDS teams.",
+  },
+];
+
+const PRICING_TIERS = [
+  {
+    stage: "STAGE 1 · B2C DIRECT (NOW)",
+    badgeKo: "은행 API 없이 즉시 작동",
+    badgeEn: "Zero Bank API Required",
+    titleKo: "가족 안심 구독 (55+ 부모님 & 자녀)",
+    titleEn: "Family Peace-of-Mind Plan (55+ & Adult Child)",
+    priceKo: "₩9,900",
+    unitKo: "/ 월 (가족당)",
+    priceEn: "₩9,900",
+    unitEn: "/ mo (~$7.50 per family)",
+    buyerKo: "결제 주체: 30~48세 직장인 자녀 또는 55~69세 은퇴자산 보유 액티브 시니어",
+    buyerEn: "Buyer: 30–48 Adult Children (Sandwich Gen / Diaspora) or 55–69 Active Seniors",
+    featuresKo: [
+      "55세 이상 부모님 최대 2분 + 보호자(자녀) 무제한 연동",
+      "안드로이드 실시간 문자·카톡·통화 사기 탐지 + 은행 앱 고액 이체 화면 잠금(Overlay Lock)",
+      "해외 거주 자녀를 위한 한·영 실시간 승인/차단 알림",
+      "선택 특약: 월 19,900원 플랜 가입 시 최대 1,000만 원 피싱 피해 안심 보상 보장",
+    ],
+    featuresEn: [
+      "Covers up to 2 parents (aged 55+) + unlimited family guardians",
+      "Android real-time SMS/Kakao/Call interception + Banking App Screen Co-Sign Lock",
+      "Instant bilingual (KO/EN) push alerts for domestic & diaspora children",
+      "Optional Guaranteed Tier (₩19,900/mo): includes ₩10M cyber-scam loss coverage",
+    ],
+    highlight: true,
+  },
+  {
+    stage: "STAGE 2 · B2B2C CHANNELS",
+    badgeKo: "손해보험사 · 알뜰폰 · 기업복지",
+    badgeEn: "Insurers · MVNOs · Corporate HR",
+    titleKo: "보험·통신 55+ 시니어 안심 번들",
+    titleEn: "Insurer & Telco 55+ Protection Bundle",
+    priceKo: "₩1,500~2,500",
+    unitKo: "/ 가입자당 월 (PMPM)",
+    priceEn: "₩1,500–2,500",
+    unitEn: "/ member / mo (Wholesale)",
+    buyerKo: "고객사: 손해보험사(효도보험·피싱특약), 알뜰폰(시니어 요금제), 대기업 임직원 복지",
+    buyerEn: "Buyer: P&C Insurers (DB, Hyundai, Samsung Fire), MVNOs, Corporate HR Benefits",
+    featuresKo: [
+      "손해보험사 '보이스피싱 피해 보장 특약' 가입자(55+) 대상 사전 차단 앱 무료 번들링 → 손해율 직결 감소",
+      "알뜰폰(MVNO) 55+ 시니어 안심 요금제 부가서비스 탑재",
+      "기업 임직원(30~50대) 부모님 안심 케어 B2B 복지 패키지 제공",
+      "화이트라벨 SDK 및 파트너 전용 대시보드 지원",
+    ],
+    featuresEn: [
+      "Reduces claims loss ratio for P&C insurers selling Voice-Phishing Loss Riders to 55+ seniors",
+      "Bundled into MVNO '55+ Senior Safe Mobile Plans' as a high-retention differentiator",
+      "Sold to enterprise HR teams as an Elder-Care Employee Benefit for 35–50s staff",
+      "White-label SDK & partner analytics console included",
+    ],
+    highlight: false,
+  },
+  {
+    stage: "STAGE 3 · B2B ENTERPRISE",
+    badgeKo: "제2금융권 · 상호금융 특화",
+    badgeEn: "Tier-2 Mutuals & Savings Banks",
+    titleKo: "제2금융권 무과실 배상책임 대응 SaaS",
+    titleEn: "Tier-2 Financial Liability Compliance SaaS",
+    priceKo: "₩500만~1,500만",
+    unitKo: "/ 기관당 월 + 건당 과금",
+    priceEn: "₩5M–₩15M",
+    unitEn: "/ institution / mo + audit fee",
+    buyerKo: "고객사: 새마을금고(1,200+곳), 신협, 단위농협, 우체국예금, 저축은행(79곳)",
+    buyerEn: "Buyer: Saemaul Geumgo (1,200+), Credit Unions, Regional Co-ops, 79 Savings Banks",
+    featuresKo: [
+      "예금주 65% 이상이 55세 이상 고령층이나 자체 AI FDS 개발팀이 없는 상호금융·저축은행 타깃",
+      "POST /api/transfers 웹훅 연동으로 고위험 이체 즉시 보류 및 가족 공동 승인 게이트 구축",
+      "보이스피싱 무과실 배상책임 법안(최대 5,000만 원 배상) 면책용 타임스탬프 Warning Record 자동 발급",
+      "금융보안원 가이드라인 준수 결정적 정책 게이트(Policy Floor) 내장",
+    ],
+    featuresEn: [
+      "Built for Tier-2 mutuals where 65%+ of deposits belong to 55+ seniors and no internal AI team exists",
+      "Drop-in POST /api/transfers webhook holds high-risk transfers until family guardian co-signs",
+      "Generates cryptographic-grade Warning Records required under Korea's No-Fault Liability Act",
+      "Deterministic policy floor guarantees prompt-injection immunity",
+    ],
+    highlight: false,
+  },
 ];
 
 export default function HomePage() {
@@ -153,15 +240,15 @@ export default function HomePage() {
         prev.map((c) =>
           c.id === activeCheck.id
             ? {
-                ...c,
-                status: nextStatus,
-                decided_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-              }
+              ...c,
+              status: nextStatus,
+              decided_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            }
             : c,
         ),
       );
-      await decideCheck(activeCheck.id, d).catch(() => {});
+      await decideCheck(activeCheck.id, d).catch(() => { });
     } else {
       const res = await decideCheck(activeCheck.id, d);
       if (res.check) {
@@ -266,6 +353,15 @@ export default function HomePage() {
                     {lang === "ko" ? "자녀 관제 화면 (/guardian)" : "Guardian Console (/guardian)"}
                   </span>
                 </Link>
+                <a
+                  href="#pricing"
+                  className="inline-flex min-h-13 items-center gap-2 rounded-2xl border-2 border-[#32d583]/40 bg-[#32d583]/10 px-4 py-3 text-sm font-bold text-[#32d583] transition hover:bg-[#32d583]/20"
+                >
+                  <Users className="size-4" aria-hidden />
+                  <span>
+                    {lang === "ko" ? "55+ 타깃 및 수익모델" : "55+ & Business Model"}
+                  </span>
+                </a>
               </div>
 
               {/* 4 Key Proof Metrics */}
@@ -544,11 +640,10 @@ export default function HomePage() {
                         key={c.id}
                         type="button"
                         onClick={() => setSelectedId(c.id)}
-                        className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-xs font-semibold transition ${
-                          isSelected
+                        className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-xs font-semibold transition ${isSelected
                             ? "border-navy bg-navy text-white"
                             : "border-line bg-surface text-ink hover:border-navy/40"
-                        }`}
+                          }`}
                       >
                         <span className="truncate">
                           {c.transfer
@@ -556,15 +651,14 @@ export default function HomePage() {
                             : `💬 ${c.content.slice(0, 38)}…`}
                         </span>
                         <span
-                          className={`shrink-0 rounded-full px-2 py-0.5 font-mono text-[11px] font-bold uppercase ${
-                            isSelected
+                          className={`shrink-0 rounded-full px-2 py-0.5 font-mono text-[11px] font-bold uppercase ${isSelected
                               ? "bg-white/20 text-white"
                               : c.status === "held"
                                 ? "bg-danger text-white"
                                 : c.status === "blocked"
                                   ? "bg-danger-ink text-white"
                                   : "bg-safe-bg text-safe"
-                          }`}
+                            }`}
                         >
                           {c.status}
                         </span>
@@ -793,7 +887,7 @@ export default function HomePage() {
                 <span className="text-[#32d583]">VERIFIED AUDIT LOG</span>
               </div>
               <pre className="overflow-x-auto text-[11px] leading-relaxed text-[#93c5fd]">
-{`{
+                {`{
   "record_type": "scam_shield_warning_record",
   "check_id": "c-held",
   "channel": "bank_transfer",
@@ -810,6 +904,111 @@ export default function HomePage() {
 }`}
               </pre>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 55+ DEMOGRAPHIC & 3-STAGE BUSINESS MODEL SECTION */}
+      <section id="pricing" className="border-t border-line bg-bg py-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 items-end justify-between gap-6 lg:grid-cols-12">
+            <div className="lg:col-span-7">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-navy/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy">
+                <Users className="size-3.5" aria-hidden />
+                {lang === "ko"
+                  ? "핵심 타깃(55+) & 3단계 수익 모델 (Business Model)"
+                  : "55+ Target Demographic & 3-Stage Revenue Engine"}
+              </span>
+              <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
+                {lang === "ko"
+                  ? "시중 1금융권 은행을 기다리지 않습니다 — 55+ 액티브 시니어와 가족, 보험·상호금융이 실제 고객입니다"
+                  : "We Don't Wait on Tier-1 Banks: Built for 55+ Active Seniors, Adult Children, Insurers & Tier-2 Mutuals"}
+              </h2>
+            </div>
+            <div className="rounded-2xl border border-line bg-surface p-4 lg:col-span-5">
+              <p className="text-xs font-extrabold uppercase tracking-wide text-navy">
+                {lang === "ko"
+                  ? "왜 65세가 아닌 '55세 이상(55+)'인가요?"
+                  : "Why 55+ Active Seniors (Not Just 65+)?"}
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-muted">
+                {lang === "ko"
+                  ? "한국 55세 이상 인구 2,140만 명(전 국민의 42%)은 모바일 뱅킹 이용률이 92%에 달하며 퇴직금·전세금 등 가장 큰 현금 유동성을 보유해 전체 보이스피싱 피해액(1.26조 원)의 62% 이상이 집중되는 핵심 보호 계층입니다."
+                  : "Korea's 21.4M adults aged 55+ (42% of the population) have 92% mobile banking adoption, hold peak retirement lump sums (퇴직금), and account for 62%+ of the ₩1.26T stolen annually."}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+            {PRICING_TIERS.map((tier) => (
+              <div
+                key={tier.stage}
+                className={`flex flex-col justify-between rounded-3xl border-2 p-6 shadow-sm transition ${
+                  tier.highlight
+                    ? "border-navy bg-surface ring-4 ring-navy/10"
+                    : "border-line bg-surface hover:border-navy/40"
+                }`}
+              >
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-mono text-xs font-extrabold uppercase tracking-wider text-navy">
+                      {tier.stage}
+                    </span>
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                        tier.highlight
+                          ? "bg-[#32d583]/20 text-safe"
+                          : "bg-bg text-muted"
+                      }`}
+                    >
+                      {lang === "ko" ? tier.badgeKo : tier.badgeEn}
+                    </span>
+                  </div>
+
+                  <h3 className="mt-3 text-xl font-extrabold text-ink">
+                    {lang === "ko" ? tier.titleKo : tier.titleEn}
+                  </h3>
+
+                  <div className="mt-3 flex items-baseline gap-1 border-b border-line pb-4">
+                    <span className="font-mono text-3xl font-extrabold tabular-nums text-ink">
+                      {lang === "ko" ? tier.priceKo : tier.priceEn}
+                    </span>
+                    <span className="text-xs font-semibold text-muted">
+                      {lang === "ko" ? tier.unitKo : tier.unitEn}
+                    </span>
+                  </div>
+
+                  <p className="mt-3 rounded-xl bg-bg/80 px-3 py-2 text-xs font-bold text-navy">
+                    {lang === "ko" ? tier.buyerKo : tier.buyerEn}
+                  </p>
+
+                  <ul className="mt-4 flex flex-col gap-2.5 text-sm leading-relaxed text-ink">
+                    {(lang === "ko" ? tier.featuresKo : tier.featuresEn).map((f) => (
+                      <li key={f} className="flex items-start gap-2">
+                        <span className="mt-1 size-2 shrink-0 rounded-full bg-navy" aria-hidden />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-line">
+                  <a
+                    href="#simulator"
+                    className={`flex min-h-11 w-full items-center justify-center gap-1.5 rounded-2xl px-4 text-sm font-bold transition ${
+                      tier.highlight
+                        ? "bg-navy text-white hover:bg-navy-2"
+                        : "border border-line bg-bg text-ink hover:border-navy"
+                    }`}
+                  >
+                    <span>
+                      {lang === "ko" ? "위 시뮬레이터에서 바로 체험하기" : "Test Live in Simulator Above"}
+                    </span>
+                    <ArrowRight className="size-4" aria-hidden />
+                  </a>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -836,9 +1035,8 @@ export default function HomePage() {
                   >
                     <span>{lang === "ko" ? item.qKo : item.qEn}</span>
                     <ChevronDown
-                      className={`size-5 shrink-0 text-muted transition-transform ${
-                        isOpen ? "rotate-180 text-navy" : ""
-                      }`}
+                      className={`size-5 shrink-0 text-muted transition-transform ${isOpen ? "rotate-180 text-navy" : ""
+                        }`}
                       aria-hidden
                     />
                   </button>

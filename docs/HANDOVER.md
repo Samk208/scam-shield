@@ -71,6 +71,7 @@ This iteration transformed **Scam Shield** from a mobile-only strip (`max-w-md`)
 | `components/AgentPipeline.tsx` | Added total latency badge (`⏱ 4.8s`) and bilingual stage descriptions. |
 | `components/AgentTrace.tsx` | Added step index pills, human-friendly tool badges, and visual connector timeline. |
 | `components/RiskMeter.tsx` | Added risk tier badge (`고위험 · 즉시 보류 / High Risk · Auto-Hold`) and threshold scale (`0 / 35 / 60 / 100`). |
+| `docs/designs/business-model-55plus-gtm.md` | Full `/office-hours` Business Model & 55+ Go-To-Market strategy doc (Stage 1 B2C Family Plan, Stage 2 B2B2C Insurer/MVNO bundles, Stage 3 Tier-2 Mutuals Compliance SaaS). |
 
 ---
 
@@ -79,18 +80,14 @@ This iteration transformed **Scam Shield** from a mobile-only strip (`max-w-md`)
 - `pnpm typecheck` (`tsc --noEmit`): **PASS (0 errors)**
 - `pnpm lint` (`eslint`): **PASS (0 errors, 0 warnings)**
 - `pnpm build` (`next build` with Turbopack): **PASS (all static & dynamic routes compiled cleanly)**
-- Live HTTP smoke check (`/` · `/parent` · `/guardian` · `/checks/c-held` · `/login`): **200 OK across all routes**
+- Live HTTP smoke check (`/` · `/#pricing` · `/parent` · `/guardian` · `/checks/c-held` · `/login`): **200 OK across all routes**
 
 ---
 
-## 4. How to Merge to Production When Ready
+## 4. Production Deployment & Business Model (`#pricing`)
 
-The live Vercel deployment tracks `main`. All changes from this session are safely isolated on the `feat/desktop-homepage-ux` branch on GitHub.
+All changes are merged into `main`, pushed to `Samk208/scam-shield`, and deployed live to Vercel Production:
+- **Production URL**: `https://scam-shield-livid-omega.vercel.app`
+- **55+ & Business Model Section (`/#pricing`)**: Live on the homepage with the 55+ Active Senior demographic wedge (`21.4M` Koreans, `92%` mobile banking adoption, `62%+` of total scam losses, `85%+` Android Galaxy share) and the 3-Stage Revenue Model (`₩9,900/mo` B2C Family Plan, `₩1,500–2,500 PMPM` Insurer/MVNO wholesale bundle, `₩5M–₩15M/mo` Tier-2 Mutuals & Savings Banks compliance SaaS).
 
-To preview or merge into `main` later:
-```bash
-git checkout main
-git merge feat/desktop-homepage-ux
-git push origin main
-```
 
