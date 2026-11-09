@@ -289,7 +289,7 @@ export default function CheckDetailPage() {
           </div>
         )}
       </main>
-      <DemoFooter />
+      <DemoFooter lang={lang} />
     </div>
   );
 }

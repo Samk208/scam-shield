@@ -1094,7 +1094,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <DemoFooter />
+      <DemoFooter lang={lang} />
     </div>
   );
 }

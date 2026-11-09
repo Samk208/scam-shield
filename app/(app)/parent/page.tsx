@@ -513,7 +513,7 @@ export default function ParentPage() {
           </div>
         </div>
       </main>
-      <DemoFooter />
+      <DemoFooter lang={lang} />
     </div>
   );
 }

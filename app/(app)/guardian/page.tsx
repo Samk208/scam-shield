@@ -362,7 +362,7 @@ export default function GuardianPage() {
           </aside>
         </div>
       </main>
-      <DemoFooter />
+      <DemoFooter lang={lang} />
     </div>
   );
 }
