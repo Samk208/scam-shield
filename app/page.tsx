@@ -26,8 +26,9 @@ import { AppHeader, DemoFooter } from "@/components/AppHeader";
 import { BankDemo } from "@/components/BankDemo";
 import { CheckCard } from "@/components/CheckCard";
 import { StatsStrip } from "@/components/Dashboard";
+import { fixtureChecks } from "@/lib/fixtures";
 import { decideCheck, triggerDemoReset, useFamilyChecks, useMe } from "@/lib/hooks";
-import type { Decision, Lang } from "@/lib/types";
+import type { Check, Decision, Lang } from "@/lib/types";
 
 const ARCH_STEPS = [
   {
@@ -122,29 +123,59 @@ const FAQS = [
 
 export default function HomePage() {
   const { me } = useMe();
-  const { checks, loading } = useFamilyChecks(me?.family_id ?? "00000000-0000-0000-0000-00000000fa01");
+  const { checks } = useFamilyChecks(me?.family_id ?? "00000000-0000-0000-0000-00000000fa01");
+  const [localSimChecks, setLocalSimChecks] = useState<Check[]>(() =>
+    structuredClone(fixtureChecks),
+  );
   const [lang, setLang] = useState<Lang>("ko");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [busyDecision, setBusyDecision] = useState<Decision | null>(null);
   const [resetting, setResetting] = useState(false);
   const [openFaq, setOpenFaq] = useState<number>(0);
 
-  const activeCheck =
-    checks.find((c) => c.id === selectedId) ??
-    checks.find((c) => c.status === "held") ??
-    checks[0];
+  // Merge live checks from DB/DemoStore with local simulator checks so the public homepage
+  // always has interactive scenarios even before the visitor signs in on production.
+  const displayChecks = checks.length > 0 ? checks : localSimChecks;
 
-  const heldCount = checks.filter((c) => c.status === "held").length;
+  const activeCheck =
+    displayChecks.find((c) => c.id === selectedId) ??
+    displayChecks.find((c) => c.status === "held") ??
+    displayChecks[0];
+
+  const heldCount = displayChecks.filter((c) => c.status === "held").length;
 
   async function handleGuardianDecision(d: Decision) {
     if (!activeCheck) return;
     setBusyDecision(d);
-    await decideCheck(activeCheck.id, d);
+    const nextStatus = d === "block" ? "blocked" : "released";
+    if (activeCheck.id === "c-held" || activeCheck.id === "c-safe") {
+      setLocalSimChecks((prev) =>
+        prev.map((c) =>
+          c.id === activeCheck.id
+            ? {
+                ...c,
+                status: nextStatus,
+                decided_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              }
+            : c,
+        ),
+      );
+      await decideCheck(activeCheck.id, d).catch(() => {});
+    } else {
+      const res = await decideCheck(activeCheck.id, d);
+      if (res.check) {
+        setLocalSimChecks((prev) =>
+          prev.map((c) => (c.id === res.check!.id ? res.check! : c)),
+        );
+      }
+    }
     setBusyDecision(null);
   }
 
   async function handleResetSimulator() {
     setResetting(true);
+    setLocalSimChecks(structuredClone(fixtureChecks));
     await triggerDemoReset();
     setSelectedId("c-held");
     setResetting(false);
@@ -449,7 +480,7 @@ export default function HomePage() {
 
         {/* Live Stats Strip */}
         <div className="mt-6">
-          <StatsStrip checks={checks} lang={lang} />
+          <StatsStrip checks={displayChecks} lang={lang} />
         </div>
 
         {/* Side-by-Side 12-Col Grid */}
@@ -486,21 +517,27 @@ export default function HomePage() {
             </div>
 
             <BankDemo
-              onDone={(id) => {
+              onDone={(id, createdCheck) => {
+                if (createdCheck) {
+                  setLocalSimChecks((prev) => [
+                    createdCheck,
+                    ...prev.filter((c) => c.id !== createdCheck.id),
+                  ]);
+                }
                 if (id) setSelectedId(id);
               }}
             />
 
             {/* Check selector pills so user can inspect any check in the simulator */}
-            {checks.length > 0 && (
+            {displayChecks.length > 0 && (
               <div className="rounded-2xl border border-line bg-bg/60 p-3.5">
                 <p className="mb-2 text-xs font-bold text-muted">
                   {lang === "ko"
-                    ? `최근 접수된 확인 내역 (${checks.length}건) — 클릭하여 오른쪽에서 상세 확인`
-                    : `Recent checks (${checks.length}) — click to inspect on the right`}
+                    ? `최근 접수된 확인 내역 (${displayChecks.length}건) — 클릭하여 오른쪽에서 상세 확인`
+                    : `Recent checks (${displayChecks.length}) — click to inspect on the right`}
                 </p>
                 <div className="flex flex-col gap-2">
-                  {checks.slice(0, 4).map((c) => {
+                  {displayChecks.slice(0, 4).map((c) => {
                     const isSelected = activeCheck?.id === c.id;
                     return (
                       <button
@@ -578,7 +615,7 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {loading || !activeCheck ? (
+            {!activeCheck ? (
               <div className="ss-skeleton h-80 rounded-3xl" />
             ) : (
               <CheckCard check={activeCheck} lang={lang}>

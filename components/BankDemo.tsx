@@ -44,7 +44,11 @@ const PROGRESS_STEPS = [
   "4/4 · 보호 정책 적용 및 가족 알림 확인 중…",
 ];
 
-export function BankDemo({ onDone }: { onDone: (id?: string) => void }) {
+export function BankDemo({
+  onDone,
+}: {
+  onDone: (id?: string, createdCheck?: import("@/lib/types").Check) => void;
+}) {
   const [i, setI] = useState<number>(0); // 0, 1 = presets, 2 = custom
   const [customTransfer, setCustomTransfer] = useState<Transfer>({
     amount: 15_000_000,
@@ -75,7 +79,7 @@ export function BankDemo({ onDone }: { onDone: (id?: string) => void }) {
     const r = await submitTransfer(t);
     setBusy(false);
     if (r.error) setError("이체 확인 중 문제가 생겼어요. 다시 시도해 주세요.");
-    onDone(r.check?.id);
+    onDone(r.check?.id, r.check);
   }
 
   return (

@@ -14,7 +14,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { HAS_PUBLIC_SUPABASE, triggerDemoReset } from "@/lib/hooks";
+import { ensureDemoSession, HAS_PUBLIC_SUPABASE, triggerDemoReset } from "@/lib/hooks";
 import { DEMO_LABEL } from "@/lib/labels";
 import type { Lang, Member } from "@/lib/types";
 
@@ -47,12 +47,8 @@ export function AppHeader({
   }
 
   async function navigateWithDemoRole(targetPath: string, role?: "parent" | "guardian") {
-    if (!HAS_PUBLIC_SUPABASE && role) {
-      await fetch("/api/me", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ role }),
-      }).catch(() => {});
+    if (role && (!me || me.role !== role)) {
+      await ensureDemoSession(role);
     }
     router.push(targetPath);
     router.refresh();
