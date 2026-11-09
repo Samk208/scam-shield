@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛡️ Scam Shield
 
-## Getting Started
+**Family-confirmed protection against voice phishing.** Built at c0mpiled-17 Seoul (2026-11-09) for the YC RFS themes **AI for the Aging Population** and **Proving You're Human**.
 
-First, run the development server:
+Koreans lost a record ₩1.26조 to voice phishing in 2025 (National Police Agency). Scammers win by isolating parents. With Scam Shield, Mom forwards any suspicious call, KakaoTalk message or text. An AI agent classifies the scam, puts the transfer on hold and alerts her real child. The child blocks or confirms it from their own verified device before any money moves. Every step is saved as a timestamped warning record that banks can use as evidence under the pending no-fault liability law.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+> Demo: synthetic messages · simulated bank hold · no real accounts.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## How it works
+1. **Parent** pastes a suspicious message and taps 확인하기.
+2. **AI agent** (Claude, structured output) returns the scam type (기관사칭형, 가족사칭, 대출빙자형…), a risk score from 0 to 100, red flags, and a bilingual KO/EN explanation. The message is handled as untrusted input.
+3. A score of **60 or more** puts the transfer **on hold** and alerts the guardian live (Supabase Realtime).
+4. The **guardian** taps Block or It's fine. The decision is a compare-and-swap, so it happens exactly once, and Mom's screen updates live.
+5. The **warning record** shows the audit timeline and can be exported.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Stack
+- Next.js 16 (App Router), TypeScript and Tailwind v4.
+- Supabase: Auth, Postgres with RLS on every table, and Realtime.
+- Vercel AI SDK with Anthropic.
+- Deployed on Vercel.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Run locally
+1. Create a Supabase project and run `supabase/migrations/0001_init.sql` in its SQL editor.
+2. Create `.env.local` with these keys. Never commit it.
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+   SUPABASE_SERVICE_ROLE_KEY=        # server only
+   ANTHROPIC_API_KEY=                # server only
+   ANTHROPIC_MODEL=claude-sonnet-5-5
+   SEED_PARENT_EMAIL=mom@scamshield.test
+   SEED_GUARDIAN_EMAIL=joon@scamshield.test
+   SEED_PASSWORD=                    # demo-only password
+   ```
+3. Install and run:
+   ```
+   pnpm install
+   pnpm seed
+   pnpm dev
+   ```
+4. Sign in as the parent in one browser and as the guardian in another browser or a private window.
 
-## Learn More
+## Docs
+- `docs/PRD.md`: product requirements, API contract, demo script.
+- `docs/FRONTEND_PLAN.md`: UI plan and ownership.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Built with
+- Claude Code.
+- gstack skills: `/office-hours`, used to pick the idea from seven candidates.
