@@ -22,6 +22,15 @@ const TITLE: Record<Check["status"], { ko: string; en: string }> = {
   failed: { ko: "확인에 실패했어요. 다시 시도해 주세요", en: "Analysis failed — ask Mom to retry" },
 };
 
+// Bank-triggered checks: Mom did nothing; the bank paused her transfer automatically.
+const TRANSFER_TITLE: Partial<Record<Check["status"], { ko: string; en: string }>> = {
+  analyzing: { ko: "은행이 이체를 확인 중이에요…", en: "Bank is screening Mom's transfer…" },
+  safe: { ko: "이체가 완료됐어요", en: "Transfer looked normal — sent" },
+  held: { ko: "이체가 보류됐어요. 자녀 확인을 기다리는 중이에요", en: "Mom's transfer is ON HOLD — confirm or block" },
+  blocked: { ko: "자녀가 이체를 막았어요. 사기일 가능성이 높아요", en: "You blocked Mom's transfer" },
+  released: { ko: "자녀가 확인했어요. 이체가 진행됩니다", en: "You approved the transfer" },
+};
+
 function timeLabel(iso: string) {
   return new Date(iso).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
 }
@@ -50,7 +59,7 @@ export function CheckCard({ check, lang, compact, children }: { check: Check; la
       <div className="flex items-start gap-3">
         <Icon className={`size-9 shrink-0 ${s.iconColor}`} aria-hidden />
         <div className="min-w-0 flex-1">
-          <h2 className={`font-bold leading-snug ${lang === "ko" ? "text-2xl" : "text-xl"}`}>{TITLE[check.status][lang]}</h2>
+          <h2 className={`font-bold leading-snug ${lang === "ko" ? "text-2xl" : "text-xl"}`}>{(check.channel === "bank_transfer" && TRANSFER_TITLE[check.status] ? TRANSFER_TITLE[check.status]! : TITLE[check.status])[lang]}</h2>
           {check.scam_type && check.scam_type !== "legit" && (
             <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-danger px-3 py-0.5 text-sm font-semibold text-white">
               <AlertTriangle className="size-3.5" /> {SCAM_TYPE_LABEL[check.scam_type][lang]}

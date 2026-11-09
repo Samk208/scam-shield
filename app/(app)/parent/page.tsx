@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { MessageSquareText, Phone, Smartphone, ShieldCheck } from "lucide-react";
 import { AppHeader, DemoFooter } from "@/components/AppHeader";
+import { BankDemo } from "@/components/BankDemo";
 import { CheckCard } from "@/components/CheckCard";
 import { submitCheck, useFamilyChecks, useMe } from "@/lib/hooks";
 import type { Channel } from "@/lib/types";
@@ -45,9 +46,13 @@ export default function ParentPage() {
     <>
       <AppHeader me={me} subtitle={me ? `${me.display_name}님` : undefined} />
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 p-4 text-lg">
+        <BankDemo onDone={(id) => id && setLatestId(id)} />
+
+        {loading ? null : latest ? <CheckCard check={latest} lang="ko" /> : null}
+
         <section className="rounded-3xl bg-surface p-5 shadow-sm">
-          <h1 className="text-2xl font-bold">이상한 연락을 받으셨나요?</h1>
-          <p className="mt-1 text-muted">문자·카톡·전화 내용을 붙여넣으면 AI가 사기인지 확인하고, 자녀에게 바로 알려드려요.</p>
+          <h1 className="text-xl font-bold">이상한 연락을 받으셨나요? (선택)</h1>
+          <p className="mt-1 text-base text-muted">문자·카톡·전화 내용을 붙여넣어도 AI가 확인하고 자녀에게 알려드려요.</p>
 
           <div className="mt-4 grid grid-cols-3 gap-2" role="radiogroup" aria-label="받은 경로">
             {CHANNELS.map(({ id, label, Icon }) => (
@@ -77,8 +82,6 @@ export default function ParentPage() {
           </button>
           {error && <p className="mt-2 text-base text-danger" role="alert">{error}</p>}
         </section>
-
-        {loading ? null : latest ? <CheckCard check={latest} lang="ko" /> : null}
 
         {history.length > 0 && (
           <section className="flex flex-col gap-2">

@@ -21,6 +21,7 @@ export const CHANNEL_LABEL: Record<Channel, { ko: string; en: string }> = {
   sms: { ko: "문자", en: "SMS" },
   kakao: { ko: "카카오톡", en: "KakaoTalk" },
   call_transcript: { ko: "통화 내용", en: "Call transcript" },
+  bank_transfer: { ko: "은행 이체", en: "Bank transfer" },
 };
 
 export const DEMO_LABEL = "Demo: synthetic messages · simulated bank hold · no real accounts";

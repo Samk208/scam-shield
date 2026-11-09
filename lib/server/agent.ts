@@ -1,6 +1,6 @@
 import "server-only";
 import { analyzeMessage, type Verdict } from "@/lib/server/analyze";
-import { HOLD_THRESHOLD, type AgentStep, type Channel, type Indicators } from "@/lib/types";
+import { HOLD_THRESHOLD, type AgentStep, type Channel, type Indicators, type Transfer } from "@/lib/types";
 
 /**
  * Scam Shield Agent: Perceive -> Tools -> Reason -> Policy -> Human -> Audit.
@@ -36,7 +36,7 @@ export function scanSignals(text: string) {
 }
 
 // Policy: deterministic, auditable action from evidence + model score.
-export function decidePolicy(v: Verdict, signals: { id: string }[]) {
+export function decidePolicy(v: Verdict, signals: { id: string }[], transferFlags: string[] = []) {
   let risk = v.risk_score;
   let scamType = v.scam_type;
   // Evidence floor: two or more playbook signals cannot be talked down by the model (prompt-injection guard).
@@ -44,11 +44,26 @@ export function decidePolicy(v: Verdict, signals: { id: string }[]) {
     risk = 70;
     if (scamType === "legit") scamType = "other_scam";
   }
+  // Bank rule: a large transfer to a NEW payee by a protected customer always needs family confirmation.
+  if (transferFlags.includes("new_payee") && transferFlags.includes("large_amount") && risk < HOLD_THRESHOLD) {
+    risk = HOLD_THRESHOLD;
+    if (scamType === "legit") scamType = "other_scam";
+  }
   const action = risk >= HOLD_THRESHOLD ? "hold_and_alert" : "mark_safe";
   return { risk, scamType, action } as const;
 }
 
-export async function runAgent(channel: Channel, content: string) {
+// Tool 3 (bank trigger only): deterministic transfer-risk flags from the transaction itself.
+export function assessTransfer(t: Transfer, recentSuspicious: boolean) {
+  const flags: string[] = [];
+  if (t.new_payee) flags.push("new_payee");
+  if (t.amount >= 5_000_000) flags.push("large_amount");
+  if (/안전|보호|검찰|금감원|수사|국가/.test(`${t.payee_name} ${t.memo}`)) flags.push("safe_account_payee");
+  if (recentSuspicious) flags.push("recent_suspicious_contact");
+  return flags;
+}
+
+export async function runAgent(channel: Channel, content: string, transfer?: { t: Transfer; recentSuspicious: boolean }) {
   const trace: AgentStep[] = [];
   const step = async <T,>(name: AgentStep["step"], tool: string, fn: () => T | Promise<T>, summarize: (r: T) => string) => {
     const t = Date.now();
@@ -62,9 +77,13 @@ export async function runAgent(channel: Channel, content: string) {
     (i) => `${i.urls.length} links · ${i.phones.length} phone numbers · ${i.accounts.length} account numbers · ${i.amounts.length} amounts`);
   const signals = await step("tools", "scan_scam_playbook", () => scanSignals(content),
     (s) => (s.length ? s.map((x) => x.label).join(", ") : "no playbook signals"));
-  const verdict = await step("reason", "llm_classify (Claude)", () => analyzeMessage(channel, content, { indicators, signals }),
+  const transferFlags = transfer
+    ? await step("tools", "assess_transfer", () => assessTransfer(transfer.t, transfer.recentSuspicious),
+        (f) => (f.length ? f.join(", ") : "no transfer risk flags"))
+    : [];
+  const verdict = await step("reason", "llm_classify (Claude)", () => analyzeMessage(channel, content, { indicators, signals, transferFlags }),
     (v) => `${v.scam_type} · model risk ${v.risk_score}`);
-  const policy = await step("policy", "decide_action", () => decidePolicy(verdict, signals),
+  const policy = await step("policy", "decide_action", () => decidePolicy(verdict, signals, transferFlags),
     (p) => (p.action === "hold_and_alert" ? `risk ${p.risk} ≥ ${HOLD_THRESHOLD} → HOLD transfer + alert guardian` : `risk ${p.risk} < ${HOLD_THRESHOLD} → mark safe, no alert`));
 
   return { verdict: { ...verdict, risk_score: policy.risk, scam_type: policy.scamType }, action: policy.action, indicators, trace };

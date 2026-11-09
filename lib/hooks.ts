@@ -98,3 +98,10 @@ export async function decideCheck(id: string, decision: Decision): Promise<{ che
   const j = (await r.json().catch(() => ({ error: "Bad response" }))) as CheckResponse & ApiError;
   return r.ok ? { check: j.check } : { error: j.error };
 }
+
+// Automatic trigger (simulated bank app): the bank screens the transfer through Scam Shield.
+export async function submitTransfer(t: import("@/lib/types").Transfer): Promise<{ check?: Check; error?: string }> {
+  const r = await fetch("/api/transfers", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(t) });
+  const j = (await r.json().catch(() => ({ error: "Bad response" }))) as CheckResponse & ApiError;
+  return r.ok ? { check: j.check } : { error: j.error, check: j.check };
+}

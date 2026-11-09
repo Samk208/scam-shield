@@ -2,7 +2,8 @@
 
 export type Role = "parent" | "guardian";
 export type Lang = "ko" | "en";
-export type Channel = "sms" | "kakao" | "call_transcript";
+export type Channel = "sms" | "kakao" | "call_transcript" | "bank_transfer";
+export interface Transfer { amount: number; payee_name: string; payee_account: string; new_payee: boolean; memo: string }
 export type CheckStatus = "analyzing" | "safe" | "held" | "blocked" | "released" | "failed";
 export type ScamType =
   | "impersonation_authority"
@@ -47,6 +48,7 @@ export interface Check {
   decided_at: string | null;
   error: string | null;
   agent_trace: AgentStep[];
+  transfer: Transfer | null;
   indicators: Indicators | Record<string, never>;
   created_at: string;
   updated_at: string;

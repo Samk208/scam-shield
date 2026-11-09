@@ -420,7 +420,7 @@ def s_title(t, D):
     T(
         d,
         (W // 2, 640),
-        "Mom forwards it. AI holds the transfer.\nHer real child decides.",
+        "Mom doesn't have to recognise the scam.\nThe money can't move until her real child confirms.",
         50,
         SOFT,
         False,
@@ -755,7 +755,7 @@ def s_compare(t, D):
             1000,
             "Scam Shield",
             [
-                "Calls, KakaoTalk, SMS",
+                "At the transfer + any message",
                 "Two-way: family blocks or confirms",
                 "Across banks, before money moves",
             ],
@@ -846,117 +846,93 @@ def s_close(t, D):
     return im
 
 
+
+def bank_phone(im, t, cx=1300):
+    """Mom's bank app: she starts a transfer to a new payee; Scam Shield's hold card slides over it."""
+    d = ImageDraw.Draw(im)
+    pw, ph, top = 520, 960, 60; x0 = cx - pw // 2
+    d.rounded_rectangle([x0 - 16, top - 16, x0 + pw + 16, top + ph + 16], 60, fill="#05101e")
+    d.rounded_rectangle([x0, top, x0 + pw, top + ph], 46, fill="#ffffff")
+    d.rectangle([x0, top + 60, x0 + pw, top + 150], fill="#1e5bd8")
+    T(d, (cx, top + 105), "OO은행 · 이체", 34, WHITE, True, "mm", bg="#1e5bd8")
+    rows = [("받는 분", "안전계좌 (신규)"), ("계좌", "000-0000-0000"), ("금액", "₩30,000,000")]
+    for i, (k, v) in enumerate(rows):
+        y = top + 200 + i * 110
+        T(d, (x0 + 40, y), k, 28, "#666666", bg="#ffffff")
+        T(d, (x0 + pw - 40, y + 36), v, 38 if i == 2 else 32, "#111111", True, "ra", bg="#ffffff")
+        d.line([(x0 + 40, y + 92), (x0 + pw - 40, y + 92)], fill="#e5e7eb", width=2)
+    pressed = t > 1.6
+    d.rounded_rectangle([x0 + 40, top + ph - 160, x0 + pw - 40, top + ph - 60], 24,
+                        fill="#123f9a" if pressed else "#1e5bd8")
+    T(d, (cx, top + ph - 110), "이체하기", 36, WHITE, True, "mm", bg="#1e5bd8")
+    if t > 2.2:
+        c = t - 2.2; e = ease(c / 0.5); y = int(top + ph - (ph - 330) * e)
+        d.rounded_rectangle([x0 + 18, y, x0 + pw - 18, top + ph - 18], 30, fill="#fff1f1", outline=RED, width=4)
+        T(d, (x0 + 50, y + 34), "이체가 보류되었어요", 36, "#111111", True, bg="#fff1f1")
+        T(d, (x0 + 50, y + 92), "Scam Shield · 가족 확인 대기 중", 26, RED, True, bg="#fff1f1")
+        f = ease((c - 0.4) / 1.0)
+        T(d, (x0 + 50, y + 160), "위험도", 26, "#444444", bg="#fff1f1")
+        T(d, (x0 + pw - 50, y + 160), f"{int(98 * f)}/100", 34, "#111111", True, "ra", bg="#fff1f1")
+        d.rounded_rectangle([x0 + 50, y + 210, x0 + pw - 50, y + 230], 10, fill="#f3d0d0")
+        d.rounded_rectangle([x0 + 50, y + 210, x0 + 50 + int((pw - 100) * .98 * f), y + 230], 10, fill=RED)
+        if c > 1.2:
+            T(d, (x0 + 50, y + 270), "• 기관사칭형 의심\n• 처음 보내는 계좌\n• 아들 Joon에게 확인 요청함", 26, "#333333",
+              a=ease((c - 1.2) / .4), bg="#fff1f1", spacing=12)
+
+
+def s_transfer(t, D):
+    im = base(); d = ImageDraw.Draw(im)
+    bank_phone(im, t)
+    a, r = enter(t, 0.2); T(d, (120, 260), "She believes it.\nShe opens her bank.", 80, WHITE, True, a=a, rise=r, spacing=20)
+    if t > 2.4:
+        a, r = enter(t, 2.4); T(d, (120, 520), "The bank asks Scam Shield\nbefore the money moves.", 46, SOFT, a=a, rise=r, spacing=14)
+    if t > 3.6:
+        e = ease((t - 3.6) / .35); s = 1 + (1 - e) * .6
+        f = font(int(60 * s), True); tw = f.getlength("TRANSFER HELD")
+        d.rounded_rectangle([120, 700, 120 + tw + 60, 700 + 60 * s + 40], 18, outline=mix(RED, e), width=6)
+        d.text((150, 714), "TRANSFER HELD", font=f, fill=mix(RED, e))
+    footer(d, "Synthetic demo · bank integration simulated"); return im
+
+
+def s_triggers(t, D):
+    im = base(); d = ImageDraw.Draw(im)
+    a, r = enter(t, 0); T(d, (W // 2, 120), "Mom never has to spot the scam", 64, WHITE, True, "mm", a=a, rise=r)
+    cards = [("1 · Bank transfer\nintercept", "New payee + big amount:\nthe bank asks Scam Shield.\nHeld until family confirms.", "PRIMARY · simulated in demo", RED),
+             ("2 · Automatic\nmessage screening", "Incoming SMS / KakaoTalk\nscreened on her phone\nor via the telco.", "ROADMAP", "#2a5d94"),
+             ("3 · Forward\na message", "Share anything suspicious\nfor an instant check.", "FALLBACK · live today", "#2a5d94")]
+    for i, (h, s, tag, col) in enumerate(cards):
+        a, r = enter(t, .5 + i * .7); x = 90 + i * 590
+        bg = col if i == 0 else NAVY2
+        d.rounded_rectangle([x, 250 + r, x + 560, 800 + r], 30, fill=mix(bg, a), outline=mix(col, a), width=4)
+        T(d, (x + 36, 290 + r), tag, 26, WHITE if i == 0 else MUTED, True, a=a, bg=bg)
+        T(d, (x + 36, 350 + r), h, 44, WHITE, True, a=a, bg=bg, spacing=10)
+        T(d, (x + 36, 540 + r), s, 30, WHITE if i == 0 else SOFT, a=a, bg=bg, spacing=10)
+    a, r = enter(t, D - 2.2); T(d, (W // 2, 900), "The money can't move until her real child confirms.", 46, WHITE, True, "mm", a=a, rise=r)
+    return im
+
+
 SCENES = [
-    (
-        "hook",
-        "Mom just got this text. The prosecutor's office says her account is linked to a crime. Move the money today. Tell no one.",
-        6.5,
-        s_hook,
-    ),
-    (
-        "catch",
-        "Scam Shield catches it. Risk ninety-eight. The transfer is on hold.",
-        4.0,
-        s_catch,
-    ),
-    (
-        "stat",
-        "Texts like this cost Koreans a record one point two six trillion won in 2025. Up forty-seven percent.",
-        4.0,
-        s_stat,
-    ),
-    (
-        "problem",
-        "Nearly four in five losses come from fake authorities. Victims in their sixties are up eighty-five percent. Scammers win by isolating parents.",
-        4.0,
-        s_problem,
-    ),
-    ("title", "Scam Shield puts the family back in the loop.", 3.0, s_title),
-    (
-        "mom",
-        "Mom forwards the message. Our Claude agent classifies it as authority impersonation, and explains every red flag in Korean.",
-        4.0,
-        app_scene(
-            "01-mom-risk98.jpg",
-            "1 · MOM FORWARDS",
-            "Risk 98.\n기관사칭형.",
-            "Claude classifies the scam and explains\nevery red flag in Korean.\nThe transfer goes on HOLD.",
-        ),
-    ),
-    (
-        "joon",
-        "Her son Joon, in Singapore, is alerted live, in English.",
-        3.0,
-        app_scene(
-            "02a-joon-alert-top.jpg",
-            "2 · LIVE ALERT",
-            "Joon is alerted\ninstantly.",
-            "In Singapore, in English,\nvia Supabase Realtime.",
-        ),
-    ),
-    (
-        "block",
-        "He taps block. Only her real child, on his own signed-in device, can release a hold. A cloned voice can't.",
-        4.0,
-        app_scene(
-            "02-joon-alert-block.jpg",
-            "3 · HUMAN DECIDES",
-            "He taps\nBlock transfer.",
-            "Only her real child, on his own\nsigned-in device, can release a hold.\nA cloned voice can't.",
-            z0=1.04,
-            z1=1.0,
-        ),
-    ),
-    (
-        "blocked",
-        "Mom's screen updates instantly.",
-        2.5,
-        app_scene(
-            "03-mom-blocked.jpg",
-            "4 · MOM SEES IT",
-            "가족이 차단했어요.",
-            '"Your family blocked it."\nUpdated live.',
-            color=GREEN,
-        ),
-    ),
-    (
-        "loop",
-        "Under the hood is one agent loop. Deterministic tools extract indicators and scan a Korean scam playbook. Claude reasons with structured output. Then a deterministic policy holds anything at sixty or above.",
-        8.0,
-        s_loop,
-    ),
+    ("hook", "Mom just got this text. A prosecutor says her account is linked to a crime. Move the money today. Tell no one.", 6.5, s_hook),
+    ("transfer", "She believes it, and opens her bank app. But before the money moves, the bank asks Scam Shield. Risk ninety-eight. Transfer held. Mom didn't have to spot a thing.", 7.0, s_transfer),
+    ("stat", "Scams like this cost Koreans a record one point two six trillion won last year. Up forty-seven percent.", 4.0, s_stat),
+    ("problem", "Most losses come from fake authorities, and victims in their sixties are up eighty-five percent.", 4.0, s_problem),
+    ("triggers", "Mom never has to spot the scam. Risky transfers trigger it at the bank. Next, messages get screened automatically. Forwarding is just the fallback.", 7.0, s_triggers),
+    ("mom", "Mom sees why, in Korean, explained by our Claude agent.",
+     4.0, app_scene("01-mom-risk98.jpg", "1 · MOM SEES WHY", "Risk 98.\n기관사칭형.", "Claude classifies the scam and explains\nevery red flag in Korean.\nThe money stays put.")),
+    ("joon", "Her son Joon, in Singapore, is alerted live, in English.",
+     3.0, app_scene("02a-joon-alert-top.jpg", "2 · LIVE ALERT", "Joon is alerted\ninstantly.", "In Singapore, in English,\nvia Supabase Realtime.")),
+    ("block", "He taps block. Only her real child, on his own signed-in device, can release a hold. A cloned voice can't.",
+     4.0, app_scene("02-joon-alert-block.jpg", "3 · HUMAN DECIDES", "He taps\nBlock transfer.", "Only her real child, on his own\nsigned-in device, can release a hold.\nA cloned voice can't.", z0=1.04, z1=1.0)),
+    ("blocked", "Mom's screen updates instantly.",
+     2.5, app_scene("03-mom-blocked.jpg", "4 · MOM SEES IT", "가족이 차단했어요.", "\"Your family blocked it.\"\nUpdated live.", color=GREEN)),
+    ("loop", "Under the hood, deterministic tools extract indicators and scan a Korean scam playbook. Claude reasons. Then a fixed policy holds anything at sixty or above.", 8.0, s_loop),
     ("punch", "So the AI can hold money. It can never release it.", 3.5, s_punch),
-    (
-        "inject",
-        "Messages are untrusted data, so a prompt-injected 'this is safe' can't talk it down. Two playbook signals floor the risk at seventy.",
-        6.5,
-        s_inject,
-    ),
-    ("scroll", "Every step is timed and saved as a warning record.", 4.5, s_scroll),
-    (
-        "stack",
-        "We built it today on Next.js, Supabase with row-level security and Realtime, and Claude. Eleven of eleven end-to-end tests pass.",
-        5.0,
-        s_stack,
-    ),
-    (
-        "compare",
-        "SKT's family care covers calls, one way. We cover every channel, across banks, before money moves.",
-        5.0,
-        s_compare,
-    ),
-    (
-        "business",
-        "Banks pay. The pending no-fault bill exempts banks that sufficiently warned the customer, and our record is that proof. Families use it free.",
-        6.0,
-        s_business,
-    ),
-    (
-        "close",
-        "Scam Shield. Because the only one who can release Mom's money should be her family.",
-        4.5,
-        s_close,
-    ),
+    ("inject", "And a prompt-injected 'this is safe' can't talk it down. Two playbook signals floor the risk at seventy.", 6.0, s_inject),
+    ("scroll", "Every step is saved as a timestamped warning record.", 4.0, s_scroll),
+    ("stack", "Built today: Next.js, Supabase Realtime and Claude. Eleven of eleven tests pass.", 5.0, s_stack),
+    ("compare", "SKT's family care covers calls, one way. We sit at the transfer, across banks, before money moves.", 5.0, s_compare),
+    ("business", "Banks pay. The pending no-fault bill exempts banks that sufficiently warned the customer. Our record is that proof.", 6.0, s_business),
+    ("close", "Scam Shield. Mom's money can't move until her real child confirms.", 4.5, s_close),
 ]
 
 

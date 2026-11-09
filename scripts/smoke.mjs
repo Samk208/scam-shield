@@ -64,3 +64,11 @@ const { data: after } = await mom.sb.from("checks").select("status").eq("id", id
 ok(after?.status === "blocked", `direct client write blocked by RLS (status still ${after?.status})${writeErr ? "" : ""}`);
 const noauth = await call("", "/api/checks", { channel: "sms", content: "x" });
 ok(noauth.status === 401, `unauthenticated POST -> ${noauth.status}`);
+
+// Automatic bank trigger: Mom just transfers; the bank screens it without her recognising the scam.
+const tScam = await call(mom.cookie, "/api/transfers", { amount: 30000000, payee_name: "금융보안 안전계좌", payee_account: "352-1234-5678-90", new_payee: true, memo: "수사관 지시 자산보호" });
+ok(tScam.status === 201 && tScam.json.check.status === "held", `bank transfer to 'safe account' auto-HELD (risk ${tScam.json?.check?.risk_score})`);
+const tOk = await call(mom.cookie, "/api/transfers", { amount: 200000, payee_name: "김준 (아들)", payee_account: "110-555-123456", new_payee: false, memo: "용돈" });
+ok(tOk.status === 201 && tOk.json.check.status === "safe", `normal allowance transfer goes through (risk ${tOk.json?.check?.risk_score})`);
+const tJoon = await call(joon.cookie, "/api/transfers", { amount: 1, payee_name: "x", payee_account: "1", new_payee: true, memo: "" });
+ok(tJoon.status === 403, `guardian cannot start a transfer -> ${tJoon.status}`);

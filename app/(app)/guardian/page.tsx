@@ -52,7 +52,11 @@ export default function GuardianPage() {
         {held.length > 0 ? (
           <div className="ss-pop flex items-center gap-3 rounded-2xl bg-danger p-4 text-white shadow-md" role="alert">
             <BellRing className="size-7 shrink-0" />
-            <p className="font-bold">{parent?.display_name ?? "Mom"} forwarded a likely scam. Her transfer is on hold until you decide.</p>
+            <p className="font-bold">
+              {held[0].transfer
+                ? `${parent?.display_name ?? "Mom"} is trying to send ₩${held[0].transfer.amount.toLocaleString("en-US")} to a new account. Her bank paused it until you decide.`
+                : `${parent?.display_name ?? "Mom"} forwarded a likely scam. Any transfer is on hold until you decide.`}
+            </p>
           </div>
         ) : (
           <div className="flex items-center gap-3 rounded-2xl bg-surface p-4 shadow-sm">
