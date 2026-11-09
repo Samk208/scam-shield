@@ -6,7 +6,7 @@ Dear judges,
 
 In 2025, Koreans lost a record ₩1.2578조 to voice phishing, up 47.2% in a year. Most of it (78.6%) went to scammers posing as prosecutors or the FSS. They win the same way every time: they cut the parent off. "This is a secret investigation. Don't tell your family." Then they walk her to the transfer.
 
-The victim is the one being fooled, so she can't be the one who spots it. Scam Shield works without her. When a customer over 65 sends a large sum to a new payee, the bank calls our AI agent. It scores the transfer together with any suspicious message or call on file. At risk 60 or above, the bank holds the money and her adult child is alerted live. Only the child, from their own logged-in device, can release it. The AI can hold money but never release it. Automatic screening of incoming texts comes next, and anyone can still forward a message by hand.
+Scam Shield helps banks stop these transfers before the money leaves. When a customer over 65 sends a large sum to a new payee, the bank calls our AI agent. It scores the transfer together with any suspicious message or call on file. At risk 60 or above, the bank holds the money and her adult child is alerted live. Only the child, from their own logged-in device, can release it. The AI can hold money but never release it. Automatic screening of incoming texts comes next, and anyone can still forward a message by hand.
 
 Banks are the buyer because they own the transfer. A pending no-fault bill would cost them ₩1,098억–2,811억 a year (FSC estimate). It exempts a bank that "sufficiently warned" the customer. Every Scam Shield decision writes a timestamped warning record, which is that proof. Families use it free.
 
