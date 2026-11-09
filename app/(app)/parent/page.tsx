@@ -88,7 +88,7 @@ export default function ParentPage() {
           <div className="mt-2 flex flex-wrap gap-2" aria-label="데모 예시">
             {EXAMPLES.map((ex) => (
               <button key={ex.label} onClick={() => { setContent(ex.text); setChannel(ex.channel); }}
-                className="rounded-full border border-line px-3 py-1 text-sm text-muted hover:bg-bg">예시: {ex.label}</button>
+                className="min-h-11 rounded-full border border-line px-4 text-sm font-medium text-ink hover:border-navy hover:bg-bg">예시: {ex.label}</button>
             ))}
           </div>
 

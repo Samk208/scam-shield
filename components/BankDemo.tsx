@@ -36,7 +36,7 @@ export function BankDemo({ onDone }: { onDone: (id?: string) => void }) {
         <div className="flex flex-wrap gap-2">
           {PRESETS.map((p, idx) => (
             <button key={p.label} onClick={() => setI(idx)}
-              className={`rounded-full border px-3 py-1 text-sm ${i === idx ? "border-navy bg-navy text-white" : "border-line text-muted"}`}>
+              className={`min-h-11 rounded-full border px-4 text-sm font-medium ${i === idx ? "border-navy bg-navy text-white" : "border-line text-ink hover:border-navy"}`} aria-pressed={i === idx}>
               {p.label}
             </button>
           ))}

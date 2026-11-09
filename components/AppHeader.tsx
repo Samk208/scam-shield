@@ -21,7 +21,7 @@ export function AppHeader({ me, subtitle }: { me: Member | null; subtitle?: stri
             {me.role === "parent" ? "부모님" : "Guardian"}
           </span>
         )}
-        <button onClick={signOut} aria-label="Sign out" className="rounded-full p-2 hover:bg-white/10">
+        <button onClick={signOut} aria-label="Sign out" className="grid size-11 place-items-center rounded-full hover:bg-white/10">
           <LogOut className="size-5" />
         </button>
       </div>

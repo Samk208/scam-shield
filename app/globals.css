@@ -44,6 +44,11 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Interaction: Tailwind v4 preflight drops pointer cursors; restore + smooth state changes (150-200ms). */
+button:not(:disabled), a, summary, [role="button"], [role="radio"] { cursor: pointer; }
+button, a { transition: background-color .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .1s ease; }
+button:disabled { cursor: not-allowed; }
+
 /* Focus visible for keyboard users */
 :focus-visible { outline: 3px solid #4b8cf5; outline-offset: 2px; border-radius: 10px; }
 

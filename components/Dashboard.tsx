@@ -18,7 +18,7 @@ export function StatsStrip({ checks, lang }: { checks: Check[]; lang: "ko" | "en
         <div key={label} className="rounded-2xl bg-surface p-3 text-center shadow-sm">
           <Icon className={`mx-auto size-5 ${tone}`} />
           <p className={`mt-1 font-mono text-lg font-bold leading-tight ${tone}`}>{value}</p>
-          <p className="text-[11px] leading-tight text-muted">{label}</p>
+          <p className="text-xs leading-tight text-muted">{label}</p>
         </div>
       ))}
     </div>

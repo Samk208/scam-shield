@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, ChevronRight, Loader2, ShieldAlert, ShieldX, XCircle } from "lucide-react";
+import { AlertTriangle, ArrowRightCircle, CheckCircle2, ChevronRight, Loader2, ShieldAlert, ShieldX, XCircle } from "lucide-react";
 import type { Check, Lang } from "@/lib/types";
 import { CHANNEL_LABEL, SCAM_TYPE_LABEL } from "@/lib/labels";
+import { AgentPipeline } from "./AgentPipeline";
 import { RiskMeter } from "./RiskMeter";
 
 export const STATUS_STYLE: Record<Check["status"], { box: string; icon: typeof ShieldX; iconColor: string }> = {
@@ -68,6 +69,8 @@ export function CheckCard({ check, lang, compact, children }: { check: Check; la
         </div>
       </div>
 
+      <AgentPipeline check={check} lang={lang} />
+
       {check.risk_score !== null && <div className="mt-4"><RiskMeter score={check.risk_score} label={lang === "ko" ? "위험도" : "Risk score"} /></div>}
 
       {explanation && <p className={`mt-4 ${lang === "ko" ? "text-lg" : ""}`}>{explanation}</p>}
@@ -75,13 +78,13 @@ export function CheckCard({ check, lang, compact, children }: { check: Check; la
       {check.red_flags.length > 0 && (
         <ul className="mt-3 flex flex-col gap-1.5">
           {check.red_flags.map((f) => (
-            <li key={f} className="flex gap-2 text-[15px]"><span className="text-danger">●</span><span>{f}</span></li>
+            <li key={f} className="flex gap-2 text-base leading-relaxed"><AlertTriangle className="mt-1 size-4 shrink-0 text-danger" aria-hidden /><span>{f}</span></li>
           ))}
         </ul>
       )}
 
       {lang === "ko" && check.safe_action_ko && ["held", "blocked"].includes(check.status) && (
-        <p className="mt-4 rounded-2xl bg-surface p-3 text-lg font-semibold">👉 {check.safe_action_ko}</p>
+        <p className="mt-4 flex gap-2 rounded-2xl border border-line bg-surface p-3 text-lg font-semibold leading-relaxed"><ArrowRightCircle className="mt-1 size-5 shrink-0 text-navy" aria-hidden />{check.safe_action_ko}</p>
       )}
 
       <details className="mt-4 text-sm text-muted">

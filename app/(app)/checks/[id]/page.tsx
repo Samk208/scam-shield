@@ -39,7 +39,7 @@ export default function CheckDetailPage() {
     <>
       <AppHeader me={me} subtitle="Warning record" />
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-5 p-4">
-        <Link href={me?.role === "parent" ? "/parent" : "/guardian"} className="inline-flex items-center gap-1 text-sm font-semibold text-navy-2">
+        <Link href={me?.role === "parent" ? "/parent" : "/guardian"} className="inline-flex min-h-11 items-center gap-1 text-base font-semibold text-navy-2">
           <ArrowLeft className="size-4" /> Back
         </Link>
         {loading ? <p className="text-muted">Loading…</p> : !check ? <p>Not found</p> : (
