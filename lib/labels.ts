@@ -1,4 +1,4 @@
-import type { Channel, CheckStatus, ScamType } from "./types";
+import type { AuditEventType, Channel, CheckStatus, ScamType } from "./types";
 
 export const SCAM_TYPE_LABEL: Record<ScamType, { ko: string; en: string }> = {
   impersonation_authority: { ko: "기관사칭형", en: "Authority impersonation" },
@@ -22,6 +22,41 @@ export const CHANNEL_LABEL: Record<Channel, { ko: string; en: string }> = {
   kakao: { ko: "카카오톡", en: "KakaoTalk" },
   call_transcript: { ko: "통화 내용", en: "Call transcript" },
   bank_transfer: { ko: "은행 이체", en: "Bank transfer" },
+};
+
+export const EVENT_LABEL: Record<AuditEventType, { ko: string; en: string }> = {
+  submitted: {
+    ko: "보호 대상자 메시지 접수",
+    en: "Message forwarded by parent",
+  },
+  ai_verdict: {
+    ko: "AI 에이전트 위험도 판정 완료",
+    en: "AI agent verdict recorded",
+  },
+  held: {
+    ko: "이체 자동 보류 조치 (시뮬레이션)",
+    en: "Transfer put on HOLD (simulated bank hold)",
+  },
+  guardian_alerted: {
+    ko: "보호자(자녀)에게 실시간 알림 전송",
+    en: "Guardian alerted in real time",
+  },
+  marked_safe: {
+    ko: "정상 판정 — 별도 보류 없음",
+    en: "Marked safe — no alert sent",
+  },
+  blocked: {
+    ko: "보호자(자녀)가 이체를 최종 차단함",
+    en: "Guardian BLOCKED the transfer",
+  },
+  released: {
+    ko: "보호자(자녀)가 안전 확인 후 보류 해제함",
+    en: "Guardian confirmed safe & released hold",
+  },
+  failed: {
+    ko: "AI 분석 오류 발생",
+    en: "AI analysis failed",
+  },
 };
 
 export const DEMO_LABEL = "Demo: synthetic messages · simulated bank hold · no real accounts";

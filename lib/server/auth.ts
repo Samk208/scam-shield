@@ -1,11 +1,25 @@
 import "server-only";
+import { cookies, headers } from "next/headers";
+import { DEMO_ROLE_COOKIE, getDemoAuthByRole, isSupabaseConfigured } from "@/lib/server/demo-store";
 import { createClient } from "@/lib/supabase/server";
 import type { Member } from "@/lib/types";
 
 // Returns the caller's membership, or null if not logged in / not in a family.
 export async function getMe(): Promise<{ userId: string; me: Member } | null> {
+  if (!isSupabaseConfigured()) {
+    const headerStore = await headers();
+    const cookieStore = await cookies();
+    const role =
+      headerStore.get("x-demo-role") ||
+      cookieStore.get(DEMO_ROLE_COOKIE)?.value ||
+      "parent";
+    return getDemoAuthByRole(role);
+  }
+
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return null;
   const { data } = await supabase
     .from("family_members")
