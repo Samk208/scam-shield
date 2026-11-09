@@ -6,6 +6,10 @@ Koreans lost a record ₩1.26조 to voice phishing in 2025 (National Police Agen
 
 > Demo: synthetic messages · simulated bank hold · no real accounts.
 
+**Live:** https://scam-shield-livid-omega.vercel.app (installable PWA)
+**Demo logins:** `mom@scamshield.test` (parent) and `joon@scamshield.test` (guardian). Ask the team for the demo password.
+**Pitch deck:** `docs/pitch/Scam_Shield_Pitch_Deck.pdf` · **Demo video:** `docs/video/scam-shield-demo.mp4`
+
 ## The Scam Shield agent
 Each forwarded message runs through one agent loop. Every step is recorded on the check (`agent_trace`) and shown in the app.
 
