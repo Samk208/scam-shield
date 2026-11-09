@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { ShieldCheck } from "lucide-react";
+import { Brain, Landmark, ShieldCheck, UserCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { DemoFooter } from "@/components/AppHeader";
 
@@ -53,6 +53,20 @@ export default function LoginPage() {
           </button>
           {error && <p className="text-sm text-danger" role="alert">{error}</p>}
         </form>
+
+        <ol className="grid grid-cols-3 gap-2 text-center text-xs text-white/85">
+          {[
+            { Icon: Landmark, t: "Mom starts a transfer", s: "Bank asks Scam Shield automatically" },
+            { Icon: Brain, t: "AI agent screens it", s: "Tools + Claude + policy → HOLD" },
+            { Icon: UserCheck, t: "Real child decides", s: "Only family can release the money" },
+          ].map(({ Icon, t, s }, i) => (
+            <li key={t} className="rounded-2xl bg-white/10 p-3">
+              <span className="mx-auto mb-1 grid size-8 place-items-center rounded-full bg-white/15"><Icon className="size-4" /></span>
+              <p className="font-semibold text-white">{i + 1}. {t}</p>
+              <p className="mt-0.5 text-white/70">{s}</p>
+            </li>
+          ))}
+        </ol>
       </main>
       <div className="text-white/70 [&_p]:text-white/60"><DemoFooter /></div>
     </div>

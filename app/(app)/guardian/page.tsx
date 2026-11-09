@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { BellRing, Phone, ShieldCheck, ShieldX, ThumbsUp } from "lucide-react";
 import { AppHeader, DemoFooter } from "@/components/AppHeader";
 import { CheckCard } from "@/components/CheckCard";
+import { FamilyCard, StatsStrip } from "@/components/Dashboard";
 import { decideCheck, useFamilyChecks, useMe } from "@/lib/hooks";
 import type { Decision } from "@/lib/types";
 
@@ -49,6 +50,8 @@ export default function GuardianPage() {
     <>
       <AppHeader me={me} subtitle={me ? `${me.display_name} · protecting ${parent?.display_name ?? "Mom"}` : undefined} />
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-5 p-4">
+        <FamilyCard family={family} held={held.length > 0} />
+        <StatsStrip checks={checks} lang="en" />
         {held.length > 0 ? (
           <div className="ss-pop flex items-center gap-3 rounded-2xl bg-danger p-4 text-white shadow-md" role="alert">
             <BellRing className="size-7 shrink-0" />
@@ -61,7 +64,7 @@ export default function GuardianPage() {
         ) : (
           <div className="flex items-center gap-3 rounded-2xl bg-surface p-4 shadow-sm">
             <ShieldCheck className="size-7 shrink-0 text-safe" />
-            <p><span className="font-semibold">All clear.</span> You&apos;ll be alerted the moment {parent?.display_name ?? "Mom"} forwards something suspicious.</p>
+            <p><span className="font-semibold">All clear.</span> Her bank checks every large transfer with Scam Shield. You&apos;ll be alerted the moment one looks like a scam.</p>
           </div>
         )}
 

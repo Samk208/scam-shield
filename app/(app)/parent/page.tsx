@@ -4,6 +4,7 @@ import { MessageSquareText, Phone, Smartphone, ShieldCheck } from "lucide-react"
 import { AppHeader, DemoFooter } from "@/components/AppHeader";
 import { BankDemo } from "@/components/BankDemo";
 import { CheckCard } from "@/components/CheckCard";
+import { StatsStrip } from "@/components/Dashboard";
 import { submitCheck, useFamilyChecks, useMe } from "@/lib/hooks";
 import type { Channel } from "@/lib/types";
 
@@ -21,7 +22,8 @@ const EXAMPLES: { label: string; channel: Channel; text: string }[] = [
 ];
 
 export default function ParentPage() {
-  const { me } = useMe();
+  const { me, family } = useMe();
+  const guardians = family.filter((m) => m.role === "guardian");
   const { checks, loading } = useFamilyChecks(me?.family_id);
   const [channel, setChannel] = useState<Channel>("sms");
   const [content, setContent] = useState("");
@@ -46,6 +48,21 @@ export default function ParentPage() {
     <>
       <AppHeader me={me} subtitle={me ? `${me.display_name}님` : undefined} />
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 p-4 text-lg">
+        <section className="flex items-center gap-3 rounded-3xl bg-navy p-4 text-white shadow-sm">
+          <span className="relative grid size-12 shrink-0 place-items-center rounded-full bg-white/15">
+            <ShieldCheck className="size-7" />
+            <span className="absolute right-0 top-0 size-3 rounded-full bg-[#32d583] ring-2 ring-navy" aria-hidden />
+          </span>
+          <div className="min-w-0">
+            <p className="text-lg font-bold">보호 중이에요</p>
+            <p className="text-base text-white/80">
+              {guardians.length ? `${guardians.map((g) => g.display_name.split(" ")[0]).join(", ")}님이 함께 지켜요` : "가족이 함께 지켜요"} · 큰 이체는 가족 확인 후 진행돼요
+            </p>
+          </div>
+        </section>
+
+        <StatsStrip checks={checks} lang="ko" />
+
         <BankDemo onDone={(id) => id && setLatestId(id)} />
 
         {loading ? null : latest ? <CheckCard check={latest} lang="ko" /> : null}
